@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Sandaru Gaurange Alwis — Mechatronics & Autonomous Systems Engineer. Drone, eVTOL, robotics, AI systems. Available for aerospace roles in China.">
+<meta property="og:title" content="Sandaru Gaurange — Mechatronics & Autonomous Systems Engineer">
+<meta property="og:description" content="Engineering portfolio: drone systems, autonomous navigation, ROS2, AI/ML, systems architecture.">
+<title>Sandaru Gaurange — Mechatronics & Autonomous Systems Engineer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+/* ============================================================
+   DESIGN TOKENS & RESET
+   ============================================================ */
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", STHeiti, "Microsoft YaHei", Tahoma, SimHei, sans-serif;
+  --bg:       #0a1420;
+  --bg1:      #0d1a28;
+  --bg2:      #101f30;
+  --surface:  #122435;
+  --surface2: #16293c;
+  --border:   #1e3448;
+  --border2:  #28455c;
+  --cyan:     #4fd8c4;
+  --cyan2:    #3dbfad;
+  --cyan-dim: rgba(79,216,196,.12);
+  --blue:     #3f7cad;
+  --amber:    #d4af6a;
+  --amber-dim:rgba(212,175,106,.12);
+  --green:    #4ecb8a;
+  --red:      #e2637a;
+  --sunrise:  #e8a2b0;
+  --sunset:   #e2955a;
+  --dusk:     #6d6fd4;
+  --text:     #eef3f1;
+  --text2:    #9fb3ad;
+  --text3:    #5f7680;
+  --radius:   6px;
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 600ms;
+  --ease-out: cubic-bezier(.22,1,.36,1);
+  --ease-in:  cubic-bezier(.64,0,.78,0);
+  --ease-spring: cubic-bezier(.34,1.56,.64,1);
+  --glow-cyan: 0 0 24px rgba(79,216,196,.35), 0 0 48px rgba(79,216,196,.12);
+  --glow-amber: 0 0 20px rgba(212,175,106,.35), 0 0 40px rgba(212,175,106,.1);
+  /* Translucent variants used on section wrappers only, so the fixed
+     ambient background (drifting drone silhouettes) shows through very
+     faintly instead of being fully hidden behind opaque panels. */
+  --bg-t:  rgba(8,14,28,.42);
+  --bg1-t: rgba(10,18,34,.46);
+  --bg2-t: rgba(12,22,40,.50);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:auto;background:var(--bg);overflow-x:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.65;-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+button{cursor:pointer;border:none;background:none;font-family:var(--font)}
+a{color:inherit;text-decoration:none}
+
+/* ============================================================
+   CUSTOM CURSOR
+   ============================================================ */
+body{cursor:none}
+#cursor{position:fixed;top:0;left:0;pointer-events:none;z-index:10000;mix-blend-mode:screen}
+.cur-ring{width:40px;height:40px;border:1.5px solid var(--cyan);border-radius:50%;transform:translate(-50%,-50%);transition:width .2s,height .2s,border-color .2s}
+.cur-dot{width:4px;height:4px;background:var(--cyan);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 8px var(--cyan)}
+.cur-cross-h,.cur-cross-v{position:absolute;background:rgba(79,216,196,.5)}
+.cur-cross-h{width:10px;height:1px;top:50%;left:50%;transform:translate(-50%,-50%)}
+.cur-cross-v{width:1px;height:10px;top:50%;left:50%;transform:translate(-50%,-50%)}
+#cursor.hovered .cur-ring{width:60px;height:60px;border-color:var(--amber)}
+
+/* ============================================================
+   LOADER
+   ============================================================ */
+#loader{position:fixed;inset:0;z-index:9000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem}
+.loader-sig{font-size:.75rem;letter-spacing:.35em;color:var(--text3);text-transform:uppercase}
+.loader-name{font-size:2rem;font-weight:600;letter-spacing:.08em;color:var(--text);opacity:0}
+.loader-bar-wrap{width:240px;height:1px;background:var(--border2);position:relative;overflow:hidden}
+.loader-bar{height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue));width:0%;transition:width .1s linear}
+.loader-pct{font-size:.7rem;letter-spacing:.2em;color:var(--cyan);font-feature-settings:"tnum"}
+.loader-drone{width:60px;height:60px;position:relative;margin-bottom:.5rem}
+.loader-drone svg{width:100%;height:100%;animation:droneSpin 3s linear infinite}
+@keyframes droneSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.loader-drone-center{animation:none!important;transform-origin:30px 30px}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+#nav{position:fixed;top:0;left:0;right:0;z-index:800;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 3rem;background:rgba(5,5,8,.7);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:border-color .3s}
+.nav-brand{display:flex;align-items:center;gap:.75rem}
+.nav-brand-mark{width:28px;height:28px}
+.nav-brand-mark svg{width:100%;height:100%}
+.nav-brand-text{font-size:.75rem;letter-spacing:.12em;color:var(--text2);text-transform:uppercase}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-size:.7rem;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;transition:color var(--dur-fast) var(--ease-out);position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--cyan);transition:width var(--dur-base) var(--ease-out)}
+.nav-links a:hover,.nav-links a.active{color:var(--cyan)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-status{display:flex;align-items:center;gap:.5rem;font-size:.7rem;letter-spacing:.12em;color:var(--text3)}
+.status-dot{width:5px;height:5px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green);animation:statusPulse 2s ease-in-out infinite}
+@keyframes statusPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.nav-contact{display:flex;gap:.75rem}
+.nav-contact a{font-size:.7rem;letter-spacing:.12em;color:var(--cyan);border:1px solid rgba(79,216,196,.3);padding:5px 14px;border-radius:var(--radius);transition:all var(--dur-fast) var(--ease-out)}
+.nav-contact a:hover{background:var(--cyan-dim);box-shadow:var(--glow-cyan)}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+#hero{position:relative;height:100vh;min-height:700px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+#hero-2d-scene{position:absolute;inset:0;overflow:hidden}
+.hero-cloud{position:absolute;background:rgba(255,255,255,.045);border-radius:50%;filter:blur(11px)}
+.hero-cloud::before,.hero-cloud::after{content:'';position:absolute;background:inherit;border-radius:50%;filter:inherit}
+.hc1{width:260px;height:70px;top:16%;left:-280px;animation:driftRight 60s linear infinite}
+.hc1::before{width:150px;height:100px;top:-40px;left:30px}
+.hc1::after{width:170px;height:90px;top:-25px;left:130px}
+.hc2{width:200px;height:56px;top:58%;left:-220px;animation:driftRight 80s linear infinite;animation-delay:-20s;opacity:.65}
+.hc2::before{width:110px;height:75px;top:-32px;left:20px}
+.hc2::after{width:120px;height:65px;top:-20px;left:100px}
+.hc3{width:160px;height:44px;top:36%;left:-180px;animation:driftRight 100s linear infinite;animation-delay:-45s;opacity:.45}
+.hc3::before{width:90px;height:60px;top:-24px;left:16px}
+.hc3::after{width:95px;height:52px;top:-15px;left:75px}
+#hero-drone-wrap{position:absolute;top:52%;left:50%;width:min(42vw,520px);animation:droneHover 4.6s ease-in-out infinite}
+@keyframes droneHover{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-14px)}}
+#hero-drone-tilt{width:100%;transition:transform .14s cubic-bezier(.22,1,.36,1);will-change:transform}
+#hero-drone{width:100%;height:auto;filter:drop-shadow(0 20px 44px rgba(79,216,196,.16))}
+.hero-rotor{animation:heroRotorSpin .9s linear infinite}
+.hero-rotor.rev{animation-direction:reverse}
+@keyframes heroRotorSpin{to{transform:rotate(360deg)}}
+.hero-core-pulse{animation:corePulse 2.4s ease-in-out infinite}
+@keyframes corePulse{0%,100%{opacity:.7}50%{opacity:1}}
+.hero-nav-light{animation:navBlink 1.6s ease-in-out infinite}
+.hero-nav-light:nth-of-type(odd){animation-delay:.5s}
+@keyframes navBlink{0%,100%{opacity:.3}50%{opacity:1}}
+@media(max-width:700px){#hero-drone-wrap{width:min(64vw,340px)}}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(5,5,8,.85) 0%,rgba(5,5,8,.3) 50%,transparent 100%)}
+.hero-content{position:relative;z-index:2;padding:0 3rem 5rem;max-width:720px}
+.hero-eyebrow{display:flex;align-items:center;gap:.75rem;font-size:.7rem;letter-spacing:.25em;color:var(--cyan);text-transform:uppercase;margin-bottom:1.25rem;opacity:0;transform:translateY(12px)}
+.hero-eyebrow-line{width:32px;height:1px;background:var(--cyan)}
+.hero-h1{font-size:clamp(2.4rem,6vw,4.8rem);font-weight:700;line-height:1.05;letter-spacing:-.03em;margin-bottom:1rem;opacity:0;transform:translateY(16px)}
+.hero-h1 em{font-style:normal;color:var(--cyan);display:block}
+.hero-subtitle{font-size:clamp(.9rem,1.6vw,1.1rem);color:var(--text2);max-width:520px;margin-bottom:2rem;opacity:0;transform:translateY(12px);letter-spacing:.02em}
+.hero-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2.5rem;opacity:0;transform:translateY(10px)}
+.hero-tag{font-size:.68rem;letter-spacing:.12em;color:var(--text3);border:1px solid var(--border2);padding:5px 12px;border-radius:2px;text-transform:uppercase;transition:all var(--dur-fast) var(--ease-out)}
+.hero-tag:hover{color:var(--cyan);border-color:rgba(79,216,196,.4)}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;transform:translateY(10px)}
+.btn-primary{display:inline-flex;align-items:center;gap:.5rem;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--bg);background:var(--cyan);padding:12px 28px;border-radius:var(--radius);transition:all var(--dur-base) var(--ease-out)}
+.btn-primary:hover{background:var(--cyan2);box-shadow:var(--glow-cyan);transform:translateY(-1px)}
+.btn-secondary{display:inline-flex;align-items:center;gap:.5rem;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);border:1px solid rgba(79,216,196,.4);padding:12px 28px;border-radius:var(--radius);transition:all var(--dur-base) var(--ease-out)}
+.btn-secondary:hover{background:var(--cyan-dim);box-shadow:var(--glow-cyan);transform:translateY(-1px)}
+.hero-telemetry{position:absolute;right:3rem;bottom:5rem;z-index:2;font-size:.65rem;letter-spacing:.1em;color:var(--cyan);font-feature-settings:"tnum";display:grid;gap:.4rem;opacity:0}
+.telem-row{display:flex;justify-content:space-between;gap:2rem;border-bottom:1px solid var(--border);padding-bottom:.4rem}
+.telem-label{color:var(--text3)}
+.telem-val{color:var(--cyan);min-width:60px;text-align:right}
+.hero-scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:.6rem;opacity:0}
+.fly-chevrons{width:38px;height:22px}
+.fly-chevrons .chev{opacity:.15}
+.fly-chevrons .chev-1{animation:chevFlow 1.8s ease-in-out infinite}
+.fly-chevrons .chev-2{animation:chevFlow 1.8s ease-in-out infinite .2s}
+.fly-chevrons .chev-3{animation:chevFlow 1.8s ease-in-out infinite .4s}
+@keyframes chevFlow{0%{opacity:.12}30%{opacity:1}60%{opacity:.12}100%{opacity:.12}}
+.scroll-text{font-size:.6rem;letter-spacing:.2em;color:var(--text3);text-transform:uppercase}
+.corner-hud{position:absolute;z-index:2;font-size:.6rem;letter-spacing:.1em;color:var(--text3)}
+.corner-hud.tl{top:5rem;left:3rem}
+.corner-hud.tr{top:5rem;right:3rem;text-align:right}
+.hud-bracket{border:1px solid var(--border2);padding:.5rem .75rem;display:inline-block;position:relative}
+.hud-bracket::before,.hud-bracket::after{content:'';position:absolute;width:8px;height:8px;border-color:var(--cyan);border-style:solid}
+.hud-bracket::before{top:-1px;left:-1px;border-width:1px 0 0 1px}
+.hud-bracket::after{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+
+/* ============================================================
+   SECTION COMMONS
+   ============================================================ */
+.section{padding:7rem 3rem}
+.section-header{margin-bottom:4rem}
+.section-label{display:flex;align-items:center;gap:.75rem;font-size:.68rem;letter-spacing:.3em;color:var(--cyan);text-transform:uppercase;margin-bottom:.75rem}
+.section-label-line{width:24px;height:1px;background:var(--cyan)}
+.section-number{color:var(--border2);font-size:.68rem;letter-spacing:.15em;margin-right:.25rem}
+.section-title{font-size:clamp(1.8rem,3.5vw,3rem);font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.section-title span{color:var(--cyan)}
+.section-sub{font-size:.9rem;color:var(--text2);max-width:560px;margin-top:.75rem;line-height:1.7}
+.divider{height:1px;background:linear-gradient(90deg,var(--cyan),transparent);opacity:.3;margin:7rem 3rem}
+
+/* ============================================================
+   ABOUT / SUMMARY STRIP
+   ============================================================ */
+#about{background:var(--bg1-t);padding:5rem 3rem}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+.about-text p{font-size:.95rem;color:var(--text2);line-height:1.85;margin-bottom:1rem}
+.about-text p:last-child{margin-bottom:0}
+.about-stats{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;position:relative;overflow:hidden;transition:border-color var(--dur-base) var(--ease-out)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--cyan),transparent);opacity:0;transition:opacity var(--dur-base)}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card:hover::before{opacity:1}
+.stat-num{font-size:2.2rem;font-weight:700;color:var(--cyan);letter-spacing:-.03em;line-height:1}
+.stat-label{font-size:.72rem;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;margin-top:.35rem}
+.stat-desc{font-size:.8rem;color:var(--text2);margin-top:.5rem}
+
+/* ============================================================
+   SKILLS
+   ============================================================ */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+.skill-item{background:var(--bg2);padding:1.5rem 1.75rem;position:relative;overflow:hidden;transition:background var(--dur-fast)}
+.skill-item:hover{background:var(--surface)}
+.skill-item::before{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;background:var(--cyan);transform:scaleY(0);transform-origin:bottom;transition:transform var(--dur-base) var(--ease-out)}
+.skill-item:hover::before{transform:scaleY(1)}
+.skill-name{font-size:.82rem;color:var(--text);font-weight:500;letter-spacing:.03em}
+.skill-icon{width:20px;height:20px;margin-bottom:.75rem;opacity:.5}
+
+/* ============================================================
+   EXPERIENCE
+   ============================================================ */
+#experience{background:var(--bg-t)}
+.exp-timeline{position:relative;padding-left:2.5rem}
+.exp-timeline::before{content:'';position:absolute;left:0;top:4px;bottom:0;width:1px;background:linear-gradient(to bottom,var(--cyan),rgba(79,216,196,0) 90%)}
+.exp-item{position:relative;margin-bottom:3.5rem;padding-bottom:3.5rem;border-bottom:1px solid var(--border)}
+.exp-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.exp-dot{position:absolute;left:-2.85rem;top:3px;width:12px;height:12px;border-radius:50%;border:2px solid var(--cyan);background:var(--bg);box-shadow:0 0 14px rgba(79,216,196,.5)}
+.exp-dot.dim{border-color:var(--border2);box-shadow:none}
+.exp-period{font-size:.68rem;letter-spacing:.18em;color:var(--cyan);text-transform:uppercase;margin-bottom:.4rem}
+.exp-period.dim{color:var(--text3)}
+.exp-company{font-size:1.15rem;font-weight:600;margin-bottom:.15rem;letter-spacing:-.01em}
+.exp-role{font-size:.82rem;color:var(--text2);margin-bottom:1.25rem;font-weight:400}
+.exp-bullets{display:flex;flex-direction:column;gap:.6rem}
+.exp-bullet{font-size:.85rem;color:var(--text2);padding-left:1.25rem;position:relative;line-height:1.7}
+.exp-bullet::before{content:'›';position:absolute;left:0;color:var(--cyan);font-size:1rem}
+.exp-label{display:inline-flex;align-items:center;gap:.4rem;font-size:.68rem;letter-spacing:.12em;color:var(--amber);text-transform:uppercase;margin-bottom:.75rem;margin-top:1rem}
+.exp-label::before{content:'';width:16px;height:1px;background:var(--amber)}
+
+/* ============================================================
+   PROJECTS — AERIAL (HERO CARDS)
+   ============================================================ */
+#projects-aerial{background:var(--bg1-t);overflow:hidden}
+.aerial-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem}
+.aerial-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:relative;transition:all var(--dur-base) var(--ease-out);cursor:pointer}
+.aerial-card:hover{border-color:rgba(79,216,196,.4);box-shadow:0 8px 40px rgba(79,216,196,.08),var(--glow-cyan)}
+.aerial-card:hover .card-3d-scene{transform:scale(1.02)}
+.aerial-card.featured{grid-column:span 2}
+.card-3d-scene{height:280px;background:linear-gradient(135deg,var(--bg) 0%,var(--surface2) 100%);position:relative;overflow:hidden;transition:transform var(--dur-slow) var(--ease-out)}
+.aerial-card.featured .card-3d-scene{height:380px}
+.card-scan-line{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);animation:scanLine 3s linear infinite;opacity:0}
+.aerial-card:hover .card-scan-line{opacity:.6}
+@keyframes scanLine{0%{top:0}100%{top:100%}}
+
+/* ---- 2D CARD ART (replaces the old per-card WebGL drone scenes) ---- */
+.card-drone-icon{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:40%;max-width:190px;filter:drop-shadow(0 10px 24px rgba(0,0,0,.35));transition:transform var(--dur-slow) var(--ease-out)}
+.aerial-card:hover .card-drone-icon{transform:translate(-50%,-50%) scale(1.05)}
+.mini-rotor{animation:miniRotorSpin 1s linear infinite}
+.mini-rotor.rev{animation-direction:reverse}
+@keyframes miniRotorSpin{to{transform:rotate(360deg)}}
+
+.signal-rings{position:absolute;left:50%;top:66%;width:1px;height:1px;pointer-events:none}
+.signal-rings span{position:absolute;left:0;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border:1.5px solid var(--cyan);border-radius:50%;opacity:0;animation:ringPulse 3s ease-out infinite}
+.signal-rings span:nth-child(2){animation-delay:1s}
+.signal-rings span:nth-child(3){animation-delay:2s}
+@keyframes ringPulse{0%{width:10px;height:10px;margin:-5px 0 0 -5px;opacity:.7}100%{width:220px;height:220px;margin:-110px 0 0 -110px;opacity:0}}
+
+.blueprint-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(63,124,173,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(63,124,173,.14) 1px,transparent 1px);background-size:26px 26px;animation:gridDrift 16s linear infinite}
+@keyframes gridDrift{from{background-position:0 0}to{background-position:26px 26px}}
+.concept-frame{position:absolute;left:50%;top:52%;width:62%;height:62%;transform:translate(-50%,-50%);border:1px dashed rgba(63,124,173,.4);border-radius:10px;animation:conceptPulse 3s ease-in-out infinite}
+@keyframes conceptPulse{0%,100%{opacity:.35}50%{opacity:.85}}
+
+.turntable-ring{position:absolute;left:50%;top:52%;width:72%;max-width:210px;aspect-ratio:1;transform:translate(-50%,-50%);border:1px dashed rgba(212,175,106,.3);border-radius:50%;animation:turntableRotate 16s linear infinite}
+.turntable-ring::before,.turntable-ring::after{content:'';position:absolute;background:rgba(212,175,106,.2)}
+.turntable-ring::before{left:0;right:0;top:50%;height:1px}
+.turntable-ring::after{top:0;bottom:0;left:50%;width:1px}
+@keyframes turntableRotate{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+.radar-sweep{position:absolute;left:50%;top:50%;width:220px;height:220px;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(78,203,138,.2);overflow:hidden;background:repeating-radial-gradient(circle,rgba(78,203,138,.05) 0 1px,transparent 1px 36px)}
+.radar-sweep::before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(78,203,138,.4),transparent 30%);animation:radarSpin 3.4s linear infinite}
+@keyframes radarSpin{to{transform:rotate(360deg)}}
+.nav-path{position:absolute;left:12%;right:12%;top:76%;height:1px;background:repeating-linear-gradient(90deg,rgba(78,203,138,.5) 0 6px,transparent 6px 12px)}
+.nav-marker{position:absolute;top:-5px;width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 10px rgba(78,203,138,.8);animation:navMarkerMove 4.5s ease-in-out infinite}
+@keyframes navMarkerMove{0%{left:0}50%{left:calc(100% - 10px)}100%{left:0}}
+.card-body{padding:1.5rem}
+.card-cat{font-size:.65rem;letter-spacing:.2em;color:var(--cyan);text-transform:uppercase;margin-bottom:.5rem}
+.card-title{font-size:1rem;font-weight:600;margin-bottom:.5rem;letter-spacing:-.01em}
+.card-desc{font-size:.82rem;color:var(--text2);line-height:1.7}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)}
+.card-tags{display:flex;gap:.4rem;flex-wrap:wrap}
+.card-tag{font-size:.63rem;letter-spacing:.1em;color:var(--text3);border:1px solid var(--border);padding:3px 8px;border-radius:2px}
+.card-arrow{color:var(--text3);font-size:.75rem;letter-spacing:.1em;transition:all var(--dur-fast);text-decoration:none;display:inline-block}
+a.card-arrow:hover{color:var(--cyan)}
+.aerial-card:hover .card-arrow{color:var(--cyan);transform:translateX(3px)}
+.card-hud-overlay{position:absolute;top:.75rem;left:.75rem;font-size:.58rem;letter-spacing:.12em;color:var(--cyan);opacity:.5;pointer-events:none}
+
+/* ============================================================
+   PROJECTS — OTHER GRID
+   ============================================================ */
+#projects-other{background:var(--bg-t)}
+.filter-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2.5rem}
+.filter-btn{font-size:.68rem;letter-spacing:.15em;color:var(--text3);border:1px solid var(--border);padding:7px 16px;border-radius:2px;text-transform:uppercase;transition:all var(--dur-fast) var(--ease-out);background:none;font-family:var(--font)}
+.filter-btn:hover,.filter-btn.active{color:var(--cyan);border-color:rgba(79,216,196,.4);background:var(--cyan-dim)}
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border)}
+.proj-card{background:var(--bg);padding:1.75rem;transition:background var(--dur-fast);position:relative;overflow:hidden}
+.proj-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--cyan),transparent);transform:scaleX(0);transform-origin:left;transition:transform var(--dur-base) var(--ease-out)}
+.proj-card:hover{background:var(--surface)}
+.proj-card:hover::after{transform:scaleX(1)}
+.proj-card.hidden{display:none}
+.proj-cat{font-size:.6rem;letter-spacing:.18em;color:var(--text3);text-transform:uppercase;margin-bottom:.6rem}
+.proj-name{font-size:.9rem;font-weight:500;margin-bottom:.5rem;letter-spacing:-.01em;line-height:1.3}
+.proj-desc{font-size:.78rem;color:var(--text2);line-height:1.6;margin-bottom:.25rem}
+.proj-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.75rem}
+.proj-explore{display:inline-block;margin-top:1rem;font-size:.7rem;letter-spacing:.1em;color:var(--text3);text-decoration:none;transition:color var(--dur-fast),transform var(--dur-fast)}
+.proj-explore:hover,.proj-card:hover .proj-explore{color:var(--cyan)}
+.proj-explore:hover{transform:translateX(3px)}
+.proj-tag{font-size:.6rem;letter-spacing:.1em;color:var(--text3);border:1px solid var(--border);padding:2px 7px;border-radius:1px}
+
+/* ============================================================
+   EDUCATION
+   ============================================================ */
+#education{background:var(--bg2-t)}
+.edu-timeline{display:flex;flex-direction:column;gap:1.25rem}
+.edu-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.75rem 2rem;display:grid;grid-template-columns:auto 1fr auto;gap:1.25rem;align-items:start;transition:all var(--dur-base) var(--ease-out)}
+.edu-card:hover{border-color:var(--border2);background:var(--surface2)}
+.edu-icon{width:36px;height:36px;background:var(--cyan-dim);border:1px solid rgba(79,216,196,.25);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.edu-icon svg{width:16px;height:16px;stroke:var(--cyan);fill:none;stroke-width:1.5}
+.edu-degree{font-size:.92rem;font-weight:600;letter-spacing:-.01em;margin-bottom:.25rem}
+.edu-institution{font-size:.78rem;color:var(--cyan);margin-bottom:.15rem}
+.edu-period{font-size:.72rem;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;white-space:nowrap;margin-top:3px}
+.edu-badge{display:inline-block;font-size:.6rem;letter-spacing:.15em;color:var(--amber);border:1px solid rgba(212,175,106,.3);padding:3px 9px;border-radius:1px;text-transform:uppercase;margin-top:.75rem}
+
+/* ============================================================
+   CONTACT & REFERENCES
+   ============================================================ */
+#contact{background:var(--bg-t);text-align:center;padding:7rem 3rem 5rem}
+.contact-title{font-size:clamp(2rem,5vw,4rem);font-weight:700;letter-spacing:-.04em;margin-bottom:1rem}
+.contact-title span{color:var(--cyan)}
+.contact-sub{color:var(--text2);max-width:480px;margin:0 auto 3rem;font-size:.9rem}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--border);max-width:900px;margin:0 auto 4rem;border:1px solid var(--border)}
+.contact-item{background:var(--bg);padding:2rem 1.5rem;text-align:left;transition:background var(--dur-fast)}
+.contact-item:hover{background:var(--surface)}
+.contact-item-label{font-size:.62rem;letter-spacing:.2em;color:var(--text3);text-transform:uppercase;margin-bottom:.5rem}
+.contact-item-val{font-size:.88rem;color:var(--text);font-weight:500;word-break:break-all;line-height:1.5}
+.contact-item-val a{transition:color var(--dur-fast)}
+.contact-item-val a:hover{color:var(--cyan)}
+.copy-btn{display:inline-flex;align-items:center;gap:.35rem;font-size:.65rem;letter-spacing:.12em;color:var(--text3);border:1px solid var(--border);padding:5px 12px;border-radius:2px;margin-top:.75rem;text-transform:uppercase;transition:all var(--dur-fast);background:none;font-family:var(--font)}
+.copy-btn:hover{color:var(--cyan);border-color:rgba(79,216,196,.4)}
+.copy-btn.done{color:var(--green);border-color:rgba(78,203,138,.4)}
+.ref-section{max-width:900px;margin:0 auto}
+.ref-title{font-size:.68rem;letter-spacing:.25em;color:var(--text3);text-transform:uppercase;margin-bottom:1.25rem;text-align:left;display:flex;align-items:center;gap:.75rem}
+.ref-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;text-align:left}
+.ref-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem}
+.ref-name{font-size:.9rem;font-weight:600;margin-bottom:.25rem}
+.ref-role{font-size:.78rem;color:var(--cyan);margin-bottom:.75rem}
+.ref-contact{display:flex;flex-direction:column;gap:.3rem}
+.ref-contact a{font-size:.78rem;color:var(--text2);transition:color var(--dur-fast)}
+.ref-contact a:hover{color:var(--cyan)}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{padding:2.5rem 3rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:.7rem;letter-spacing:.08em;color:var(--text3)}
+.footer-brand{font-weight:500;color:var(--text2)}
+.footer-right{display:flex;gap:1.5rem}
+.footer-right a{transition:color var(--dur-fast)}
+.footer-right a:hover{color:var(--cyan)}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+#toast{position:fixed;bottom:2rem;right:2rem;z-index:9500;background:var(--surface2);border:1px solid var(--green);border-radius:var(--radius);color:var(--green);font-size:.75rem;letter-spacing:.08em;padding:10px 20px;pointer-events:none;opacity:0;transform:translateY(8px);transition:all .3s var(--ease-out)}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* ============================================================
+   AMBIENT SKY — layered 2D "time of day" gradients that crossfade
+   as you move between sections, plus a starfield and a drifting
+   field of CSS clouds, drone silhouettes and birds. Replaces the
+   old WebGL particle/drone canvas with pure CSS/SVG motion.
+   ============================================================ */
+#sky-layer{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.sky-theme{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
+.sky-theme.active{opacity:1}
+.sky-dawn{background:radial-gradient(ellipse 70% 45% at 18% 108%, rgba(255,170,90,.55), transparent 65%),linear-gradient(180deg,#1b1440 0%,#4a2360 48%,#c25478 100%)}
+.sky-day{background:radial-gradient(ellipse 60% 40% at 82% -5%, rgba(190,235,255,.35), transparent 65%),linear-gradient(180deg,#0c3b6e 0%,#1467a0 50%,#2fa8c0 100%)}
+.sky-zenith{background:radial-gradient(ellipse 70% 45% at 50% -8%, rgba(90,170,255,.45), transparent 68%),linear-gradient(180deg,#050f2e 0%,#0a3a8c 55%,#2a86e0 100%)}
+.sky-golden{background:radial-gradient(ellipse 70% 50% at 88% -5%, rgba(255,205,90,.55), transparent 65%),linear-gradient(180deg,#2a1806 0%,#7a4a10 52%,#e0952a 100%)}
+.sky-sunset{background:radial-gradient(ellipse 80% 50% at 50% 110%, rgba(255,120,50,.65), transparent 65%),linear-gradient(180deg,#1b0f40 0%,#782060 50%,#e0522e 100%)}
+.sky-dusk{background:radial-gradient(ellipse 70% 45% at 15% 110%, rgba(180,120,255,.45), transparent 65%),linear-gradient(180deg,#120e38 0%,#31287a 55%,#6a4fc4 100%)}
+.sky-twilight{background:radial-gradient(ellipse 60% 40% at 80% -5%, rgba(120,120,255,.35), transparent 68%),linear-gradient(180deg,#080c2a 0%,#1a1a5c 55%,#3a2a82 100%)}
+.sky-aurora{background:radial-gradient(ellipse 80% 40% at 25% 5%, rgba(70,240,160,.45), transparent 65%),radial-gradient(ellipse 60% 35% at 80% 20%, rgba(120,90,255,.30), transparent 65%),linear-gradient(180deg,#041722 0%,#0a5654 55%,#1fae7d 100%)}
+.sky-night{background:radial-gradient(ellipse 60% 40% at 50% -8%, rgba(70,110,200,.30), transparent 68%),linear-gradient(180deg,#02050d 0%,#07112a 55%,#101f4a 100%)}
+
+/* Sun / moon orb — glides to a new spot as the sky changes */
+#sky-orb{position:absolute;width:170px;height:170px;border-radius:50%;pointer-events:none;transition:top 2s cubic-bezier(.4,0,.2,1),left 2s cubic-bezier(.4,0,.2,1),background 2s ease,box-shadow 2s ease,opacity 2s ease,transform 2s ease;top:58%;left:47%;background:radial-gradient(circle,#fff4d6 0%,#ffb070 45%,rgba(255,150,90,0) 72%);box-shadow:0 0 120px 40px rgba(255,160,100,.35)}
+body[data-sky="dawn"] #sky-orb{top:58%;left:47%;width:230px;height:230px;opacity:.85}
+body[data-sky="day"] #sky-orb{top:8%;left:78%;background:radial-gradient(circle,#ffffff 0%,#d8f2ff 45%,rgba(200,235,255,0) 72%);box-shadow:0 0 140px 50px rgba(190,235,255,.30)}
+body[data-sky="zenith"] #sky-orb{top:-6%;left:46%;opacity:.55;background:radial-gradient(circle,#ffffff 0%,#a8d4ff 45%,rgba(150,200,255,0) 72%);box-shadow:0 0 140px 50px rgba(120,180,255,.30)}
+body[data-sky="golden"] #sky-orb{top:16%;left:82%;background:radial-gradient(circle,#fff2b0 0%,#ffc040 45%,rgba(255,190,60,0) 72%);box-shadow:0 0 150px 60px rgba(255,190,70,.42)}
+body[data-sky="sunset"] #sky-orb{top:72%;left:46%;width:240px;height:240px;background:radial-gradient(circle,#ffe0a0 0%,#ff7a3a 48%,rgba(255,90,40,0) 74%);box-shadow:0 0 170px 70px rgba(255,100,50,.45)}
+body[data-sky="dusk"] #sky-orb{top:84%;left:80%;opacity:.7;background:radial-gradient(circle,#ffd0f0 0%,#c080ff 45%,rgba(180,120,255,0) 72%);box-shadow:0 0 140px 50px rgba(170,110,255,.35)}
+body[data-sky="twilight"] #sky-orb{top:12%;left:74%;width:120px;height:120px;opacity:.85;background:radial-gradient(circle,#ffffff 0%,#dfe6ff 52%,rgba(210,220,255,0) 74%);box-shadow:0 0 90px 30px rgba(200,210,255,.28)}
+body[data-sky="aurora"] #sky-orb{top:10%;left:20%;width:120px;height:120px;opacity:.7;background:radial-gradient(circle,#ffffff 0%,#d8ffe8 52%,rgba(200,255,230,0) 74%);box-shadow:0 0 90px 30px rgba(140,255,200,.25)}
+body[data-sky="night"] #sky-orb{top:14%;left:72%;width:110px;height:110px;background:radial-gradient(circle,#ffffff 0%,#e8ecff 55%,rgba(220,228,255,0) 76%);box-shadow:0 0 80px 26px rgba(200,215,255,.26)}
+
+/* Accent color follows the sky (registered so it can fade smoothly) */
+@property --cyan{syntax:'<color>';inherits:true;initial-value:#4fd8c4}
+body{transition:--cyan 1.4s ease}
+body[data-sky="dawn"]{--cyan:#ff9a8a}
+body[data-sky="day"]{--cyan:#5ce0d0}
+body[data-sky="zenith"]{--cyan:#6cc8ff}
+body[data-sky="golden"]{--cyan:#ffd062}
+body[data-sky="sunset"]{--cyan:#ff9860}
+body[data-sky="dusk"]{--cyan:#c8a0ff}
+body[data-sky="twilight"]{--cyan:#8f9cff}
+body[data-sky="aurora"]{--cyan:#54f0a8}
+body[data-sky="night"]{--cyan:#4fd8c4}
+
+#stars-layer{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.6s ease;
+  background-image:
+    radial-gradient(1.4px 1.4px at 10% 20%, rgba(255,255,255,.85), transparent),
+    radial-gradient(1.4px 1.4px at 80% 12%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1px 1px at 60% 38%, rgba(255,255,255,.75), transparent),
+    radial-gradient(1.4px 1.4px at 28% 68%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1px 1px at 92% 58%, rgba(255,255,255,.65), transparent),
+    radial-gradient(1.4px 1.4px at 45% 84%, rgba(255,255,255,.7), transparent),
+    radial-gradient(1px 1px at 15% 52%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1.4px 1.4px at 70% 92%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1px 1px at 38% 6%, rgba(255,255,255,.55), transparent),
+    radial-gradient(1px 1px at 95% 80%, rgba(255,255,255,.5), transparent);
+  background-repeat:no-repeat;
+  animation:twinkle 5s ease-in-out infinite;
+}
+#stars-layer.active{opacity:.9}
+@keyframes twinkle{0%,100%{filter:brightness(1)}50%{filter:brightness(1.5)}}
+
+#cloud-field{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.cloud{position:absolute;background:rgba(255,255,255,.045);border-radius:50%;filter:blur(7px)}
+.cloud::before,.cloud::after{content:'';position:absolute;background:inherit;border-radius:50%;filter:inherit}
+.cloud-a{width:180px;height:50px}
+.cloud-a::before{width:100px;height:70px;top:-30px;left:20px}
+.cloud-a::after{width:120px;height:60px;top:-20px;left:90px}
+.cloud-b{width:140px;height:40px}
+.cloud-b::before{width:80px;height:55px;top:-25px;left:15px}
+.cloud-b::after{width:90px;height:45px;top:-15px;left:70px}
+.c1{top:9%;left:-260px;animation:driftRight 70s linear infinite}
+.c2{top:64%;left:-260px;animation:driftRight 95s linear infinite;animation-delay:-30s;opacity:.7}
+.c3{top:26%;left:-260px;animation:driftRight 120s linear infinite;animation-delay:-60s;opacity:.5}
+.c4{top:81%;left:-260px;animation:driftRight 85s linear infinite;animation-delay:-15s;opacity:.6}
+@keyframes driftRight{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 260px))}}
+
+.sky-drone-wrap{position:absolute;top:22%;left:-8vw;animation:droneDrift 58s linear infinite}
+.sky-drone-wrap.d2{top:68%;animation-duration:78s;animation-delay:-22s}
+@keyframes droneDrift{from{left:-8vw}to{left:108vw}}
+.sky-drone{width:30px;height:30px;color:var(--cyan);opacity:.3;filter:drop-shadow(0 0 6px rgba(79,216,196,.35));animation:droneBob 3.6s ease-in-out infinite}
+.sky-drone-wrap.d2 .sky-drone{color:var(--amber);filter:drop-shadow(0 0 6px rgba(212,175,106,.35))}
+@keyframes droneBob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+
+.sky-bird-wrap{position:absolute;top:15%;left:-5vw;animation:birdDrift linear infinite}
+.sky-bird-wrap.b1{animation-duration:38s}
+.sky-bird-wrap.b2{top:46%;animation-duration:52s;animation-delay:-14s}
+@keyframes birdDrift{from{left:-5vw}to{left:105vw}}
+.sky-bird{width:26px;height:11px;color:var(--text2);opacity:.4;animation:birdFlap .65s ease-in-out infinite;transform-origin:50% 50%}
+@keyframes birdFlap{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.5)}}
+@media(max-width:700px){#cloud-field .sky-bird-wrap.b2,#cloud-field .sky-drone-wrap.d2{display:none}}
+
+/* ---- FLIGHT TRANSITION FX — brief cyan speed-streaks that flash
+   across the screen while banking between sections, instead of a
+   flat scroll-style cut. ---- */
+#flight-fx{position:fixed;inset:0;z-index:950;pointer-events:none;opacity:0;transition:opacity .15s ease}
+#flight-fx.active{opacity:1}
+.streak{position:absolute;top:var(--sy,20%);left:-30%;width:34%;height:2px;background:linear-gradient(90deg,transparent,rgba(79,216,196,.75),transparent);transform:scaleX(0);transform-origin:left center}
+#flight-fx.active .streak{animation:streakFly .6s cubic-bezier(.3,0,.2,1)}
+.streak.s1{--sy:10%}
+.streak.s2{--sy:28%;animation-delay:.03s!important}
+.streak.s3{--sy:50%}
+.streak.s4{--sy:72%;animation-delay:.05s!important}
+.streak.s5{--sy:90%}
+@keyframes streakFly{0%{transform:scaleX(0) translateX(0);opacity:0}18%{opacity:1}100%{transform:scaleX(2.8) translateX(240%);opacity:0}}
+
+/* ============================================================
+   HORIZONTAL PANEL NAVIGATION — the whole site is a single row
+   of full-viewport panels moved with translateX (GSAP-tweened),
+   driven by wheel, touch-swipe, arrow keys, or the side dots.
+   html/body never scroll; each panel's own .panel-inner scrolls
+   vertically when its content is taller than the viewport.
+   ============================================================ */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+#panel-track{position:fixed;top:0;left:0;height:100vh;display:flex;will-change:transform;transition:filter .24s ease}
+#panel-track.flying{filter:blur(2px)}
+@keyframes panelReveal{from{opacity:0;transform:translate(var(--rx,0px),var(--ry,24px)) scale(var(--rs,1))}}
+.panel{width:100vw;height:100vh;flex:0 0 100vw;overflow:hidden;position:relative}
+.panel-inner{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+/* Section padding lives on the scrolling inner, not the panel — padding on the
+   panel shrank the scroll area and clipped content ~110px above the bottom edge,
+   leaving a bare strip of sky under the cards. */
+.panel.section,#contact.panel{padding:0!important}
+.panel.section>.panel-inner{padding:7rem 3rem 5rem}
+#about>.panel-inner{padding:6rem 3rem 5rem}
+#contact>.panel-inner{padding:7rem 3rem 5rem}
+@media(max-width:700px){.panel.section>.panel-inner,#about>.panel-inner{padding:5rem 1.5rem 4rem}#contact>.panel-inner{padding:6rem 1.5rem 4rem}}
+.panel-inner::-webkit-scrollbar{width:6px}
+.panel-inner::-webkit-scrollbar-track{background:transparent}
+.panel-inner::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+#panel-dots{position:fixed;right:1.5rem;top:50%;transform:translateY(-50%);z-index:850;display:flex;flex-direction:column;gap:.85rem;align-items:center}
+#panel-dots::before{content:'';position:absolute;top:4px;bottom:4px;left:50%;width:1px;background:linear-gradient(to bottom,transparent,var(--border2) 15%,var(--border2) 85%,transparent);z-index:-1}
+.panel-dot{width:8px;height:8px;border-radius:50%;border:1px solid var(--border2);background:var(--bg);transition:all var(--dur-base) var(--ease-out);padding:0;position:relative}
+.panel-dot::after{content:attr(data-label);position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:.62rem;letter-spacing:.08em;color:var(--text2);white-space:nowrap;background:rgba(10,20,32,.85);padding:3px 9px;border-radius:2px;opacity:0;pointer-events:none;transition:opacity var(--dur-fast)}
+.panel-dot:hover::after{opacity:1}
+.panel-dot.active{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(79,216,196,.6);transform:scale(1.3)}
+@media(max-width:700px){#panel-dots{right:.75rem;gap:.65rem}.panel-dot::after{display:none}}
+
+.panel-swipe-hint{position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);z-index:850;font-size:.62rem;letter-spacing:.15em;color:var(--text2);text-shadow:0 1px 6px rgba(0,0,0,.6);text-transform:uppercase;display:flex;align-items:center;gap:.5rem;opacity:.9;pointer-events:none}
+.panel-swipe-hint svg{width:14px;height:14px;animation:swipeHintMove 1.8s ease-in-out infinite}
+@keyframes swipeHintMove{0%,100%{transform:translateX(0);opacity:.5}50%{transform:translateX(5px);opacity:1}}
+@media(max-width:700px){.panel-swipe-hint{bottom:.9rem}}
+
+/* ============================================================
+   PROJECT STATUS BADGES (ongoing / concept work vs completed)
+   ============================================================ */
+.status-badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:2px;margin-left:.6rem;vertical-align:middle}
+.status-badge::before{content:'';width:5px;height:5px;border-radius:50%}
+.status-badge.status-ongoing{color:var(--cyan);border:1px solid rgba(79,216,196,.4);background:var(--cyan-dim)}
+.status-badge.status-ongoing::before{background:var(--cyan)}
+.status-badge.status-concept{color:var(--amber);border:1px solid rgba(212,175,106,.4);background:var(--amber-dim)}
+.status-badge.status-concept::before{background:var(--amber)}
+
+/* ============================================================
+   EDUCATION DOCUMENT BUTTONS + LIGHTBOX
+   ============================================================ */
+.edu-doc-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.85rem}
+.edu-doc-btn{display:inline-flex;align-items:center;gap:.4rem;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);border:1px solid var(--border2);border-radius:2px;padding:5px 11px;transition:all var(--dur-fast) var(--ease-out);background:none;font-family:var(--font)}
+.edu-doc-btn:hover{color:var(--cyan);border-color:rgba(79,216,196,.45);background:var(--cyan-dim)}
+#lightbox{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;background:rgba(6,12,20,.88);backdrop-filter:blur(6px);opacity:0;pointer-events:none;padding:4rem 1.5rem}
+#lightbox.open{opacity:1;pointer-events:auto}
+#lightbox img{max-width:min(90vw,900px);max-height:80vh;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid var(--border2)}
+#lightbox-close{position:absolute;top:1.5rem;right:1.75rem;font-size:1.6rem;color:var(--text2);line-height:1;background:none;border:none;padding:.4rem .6rem}
+#lightbox-close:hover{color:var(--cyan)}
+#lightbox-caption{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-size:.72rem;letter-spacing:.08em;color:var(--text2)}
+
+/* ============================================================
+   LANGUAGE SWITCHER
+   ============================================================ */
+.lang-switch{display:flex;align-items:center;border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;font-size:.68rem;letter-spacing:.08em}
+.lang-switch button{padding:5px 11px;color:var(--text3);transition:all var(--dur-fast) var(--ease-out);font-weight:600}
+.lang-switch button.active{color:var(--bg);background:var(--cyan)}
+.lang-switch button:not(.active):hover{color:var(--cyan)}
+@media(max-width:900px){.lang-switch{position:fixed;top:14px;right:1.5rem;z-index:900;background:rgba(10,20,32,.7);backdrop-filter:blur(12px)}}
+
+/* ============================================================
+   IMAGE PLACEHOLDER FRAMES (profile / project / certificate photos)
+   ============================================================ */
+.img-frame{position:relative;overflow:hidden;background:var(--surface2);border:1px dashed var(--border2);border-radius:var(--radius)}
+.img-frame img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s var(--ease-out),transform var(--dur-slow) var(--ease-out)}
+.img-frame:hover img{transform:scale(1.05)}
+.img-frame.img-missing{display:flex;align-items:center;justify-content:center;text-align:center}
+.img-frame.img-missing::before{content:'🖼';font-size:1.6rem;opacity:.35;display:block;margin-bottom:.5rem}
+.img-frame.img-missing::after{content:attr(data-caption);position:absolute;bottom:0;left:0;right:0;padding:.6rem .5rem;font-size:.62rem;letter-spacing:.06em;color:var(--text3);background:linear-gradient(0deg,rgba(10,20,32,.9),transparent);text-align:center;word-break:break-all}
+.img-missing-icon{opacity:.35;font-size:1.6rem}
+
+.profile-photo-frame{width:180px;height:180px;border-radius:50%;margin:0 auto 1.75rem;border:1px solid var(--border2);box-shadow:0 0 0 6px var(--cyan-dim)}
+.profile-photo-frame.img-missing::before{font-size:2rem}
+.profile-photo-frame.img-missing::after{border-radius:0 0 50% 50%;font-size:.56rem}
+
+.aerial-photo-frame{aspect-ratio:16/9;margin-top:1rem}
+
+/* ============================================================
+   GITHUB PROJECTS
+   ============================================================ */
+.gh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem}
+.gh-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;display:flex;flex-direction:column;gap:.85rem;transition:all var(--dur-base) var(--ease-out)}
+.gh-card:hover{border-color:rgba(79,216,196,.4);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.gh-card-top{display:flex;align-items:center;gap:.6rem}
+.gh-icon{width:20px;height:20px;flex-shrink:0;opacity:.8}
+.gh-name{font-size:.9rem;font-weight:600;letter-spacing:-.01em}
+.gh-desc{font-size:.8rem;color:var(--text2);line-height:1.65;flex:1}
+.gh-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);border:1px solid rgba(79,216,196,.35);border-radius:2px;padding:6px 12px;align-self:flex-start;transition:all var(--dur-fast) var(--ease-out)}
+.gh-link:hover{background:var(--cyan-dim);box-shadow:var(--glow-cyan)}
+.gh-link.placeholder{color:var(--text3);border-color:var(--border2)}
+.gh-link.placeholder:hover{color:var(--amber);border-color:rgba(212,175,106,.4);background:var(--amber-dim)}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:900px){
+  #nav{padding:0 1.5rem}
+  .nav-links{display:none}
+  .section{padding:5rem 1.5rem}
+  #hero .hero-content{padding:0 1.5rem 4rem}
+  .hero-telemetry{right:1.5rem;bottom:4rem}
+  .corner-hud{display:none}
+  .aerial-grid{grid-template-columns:1fr}
+  .aerial-card.featured{grid-column:span 1}
+  .about-grid{grid-template-columns:1fr}
+  .edu-card{grid-template-columns:auto 1fr}
+  .edu-period{grid-column:2}
+  footer{flex-direction:column;gap:.75rem;text-align:center;padding:2rem 1.5rem}
+  .nav-contact{display:none}
+}
+@media(max-width:560px){
+  .about-stats{grid-template-columns:1fr 1fr}
+  .contact-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  body{cursor:auto}
+  #cursor{display:none}
+}
+</style>
+</head>
+<body data-sky="dawn">
+
+<!-- SHARED ICON DEFS -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="drone-icon" viewBox="0 0 120 90">
+      <line x1="60" y1="45" x2="20" y2="20" stroke="#28455c" stroke-width="2"/>
+      <line x1="60" y1="45" x2="100" y2="20" stroke="#28455c" stroke-width="2"/>
+      <line x1="60" y1="45" x2="20" y2="70" stroke="#28455c" stroke-width="2"/>
+      <line x1="60" y1="45" x2="100" y2="70" stroke="#28455c" stroke-width="2"/>
+      <rect x="48" y="38" width="24" height="14" rx="3" fill="#0f2233" stroke="currentColor" stroke-width="1"/>
+      <circle cx="60" cy="45" r="2.5" fill="currentColor"/>
+      <g class="mini-rotor" style="transform-origin:20px 20px"><circle cx="20" cy="20" r="4" fill="#18324a" stroke="currentColor" stroke-width=".8"/><ellipse cx="20" cy="20" rx="13" ry="2.4" fill="currentColor" opacity=".35"/><ellipse cx="20" cy="20" rx="13" ry="2.4" fill="currentColor" opacity=".35" transform="rotate(90 20 20)"/></g>
+      <g class="mini-rotor rev" style="transform-origin:100px 20px"><circle cx="100" cy="20" r="4" fill="#18324a" stroke="currentColor" stroke-width=".8"/><ellipse cx="100" cy="20" rx="13" ry="2.4" fill="currentColor" opacity=".35"/><ellipse cx="100" cy="20" rx="13" ry="2.4" fill="currentColor" opacity=".35" transform="rotate(90 100 20)"/></g>
+      <g class="mini-rotor rev" style="transform-origin:20px 70px"><circle cx="20" cy="70" r="4" fill="#18324a" stroke="currentColor" stroke-width=".8"/><ellipse cx="20" cy="70" rx="13" ry="2.4" fill="currentColor" opacity=".35"/><ellipse cx="20" cy="70" rx="13" ry="2.4" fill="currentColor" opacity=".35" transform="rotate(90 20 70)"/></g>
+      <g class="mini-rotor" style="transform-origin:100px 70px"><circle cx="100" cy="70" r="4" fill="#18324a" stroke="currentColor" stroke-width=".8"/><ellipse cx="100" cy="70" rx="13" ry="2.4" fill="currentColor" opacity=".35"/><ellipse cx="100" cy="70" rx="13" ry="2.4" fill="currentColor" opacity=".35" transform="rotate(90 100 70)"/></g>
+    </symbol>
+    <symbol id="drone-silhouette" viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <rect x="24" y="16" width="16" height="8" rx="2"/>
+      <line x1="24" y1="18" x2="10" y2="8"/>
+      <line x1="40" y1="18" x2="54" y2="8"/>
+      <line x1="24" y1="22" x2="10" y2="32"/>
+      <line x1="40" y1="22" x2="54" y2="32"/>
+      <circle cx="10" cy="8" r="4"/>
+      <circle cx="54" cy="8" r="4"/>
+      <circle cx="10" cy="32" r="4"/>
+      <circle cx="54" cy="32" r="4"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- AMBIENT SKY: layered time-of-day gradients that crossfade between
+     sections, plus a starfield and drifting clouds/drones/birds -->
+<div id="sky-layer" aria-hidden="true">
+  <div class="sky-theme sky-dawn active" data-theme="dawn"></div>
+  <div class="sky-theme sky-day" data-theme="day"></div>
+  <div class="sky-theme sky-zenith" data-theme="zenith"></div>
+  <div class="sky-theme sky-golden" data-theme="golden"></div>
+  <div class="sky-theme sky-sunset" data-theme="sunset"></div>
+  <div class="sky-theme sky-dusk" data-theme="dusk"></div>
+  <div class="sky-theme sky-twilight" data-theme="twilight"></div>
+  <div class="sky-theme sky-aurora" data-theme="aurora"></div>
+  <div class="sky-theme sky-night" data-theme="night"></div>
+</div>
+<div id="stars-layer" aria-hidden="true"></div>
+<div id="cloud-field" aria-hidden="true">
+  <div id="sky-orb"></div>
+  <div class="cloud cloud-a c1"></div>
+  <div class="cloud cloud-b c2"></div>
+  <div class="cloud cloud-a c3"></div>
+  <div class="cloud cloud-b c4"></div>
+  <div class="sky-drone-wrap"><svg class="sky-drone" viewBox="0 0 64 40"><use href="#drone-silhouette"/></svg></div>
+  <div class="sky-drone-wrap d2"><svg class="sky-drone" viewBox="0 0 64 40"><use href="#drone-silhouette"/></svg></div>
+  <div class="sky-bird-wrap b1"><svg class="sky-bird" viewBox="0 0 40 16"><path d="M2 8 Q10 -2 20 8 Q30 -2 38 8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+  <div class="sky-bird-wrap b2"><svg class="sky-bird" viewBox="0 0 40 16"><path d="M2 8 Q10 -2 20 8 Q30 -2 38 8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+</div>
+<div id="flight-fx" aria-hidden="true">
+  <div class="streak s1"></div><div class="streak s2"></div><div class="streak s3"></div><div class="streak s4"></div><div class="streak s5"></div>
+</div>
+
+<!-- CURSOR -->
+<div id="cursor">
+  <div class="cur-ring">
+    <div class="cur-dot"></div>
+    <div class="cur-cross-h"></div>
+    <div class="cur-cross-v"></div>
+  </div>
+</div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-sig" data-en="INITIALIZING FLIGHT SYSTEM" data-zh="正在初始化飞行系统">INITIALIZING FLIGHT SYSTEM</div>
+  <div class="loader-drone">
+    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="30" r="4" fill="#4fd8c4" class="loader-drone-center"/>
+      <rect x="12" y="10" width="12" height="3" rx="1.5" stroke="#4fd8c4" stroke-width="1" class="loader-drone-center"/>
+      <rect x="36" y="10" width="12" height="3" rx="1.5" stroke="#4fd8c4" stroke-width="1" class="loader-drone-center"/>
+      <rect x="12" y="47" width="12" height="3" rx="1.5" stroke="#4fd8c4" stroke-width="1" class="loader-drone-center"/>
+      <rect x="36" y="47" width="12" height="3" rx="1.5" stroke="#4fd8c4" stroke-width="1" class="loader-drone-center"/>
+      <circle cx="18" cy="11.5" r="6" stroke="#4fd8c4" stroke-width="1" opacity=".6"/>
+      <circle cx="42" cy="11.5" r="6" stroke="#4fd8c4" stroke-width="1" opacity=".6"/>
+      <circle cx="18" cy="48.5" r="6" stroke="#4fd8c4" stroke-width="1" opacity=".6"/>
+      <circle cx="42" cy="48.5" r="6" stroke="#4fd8c4" stroke-width="1" opacity=".6"/>
+      <line x1="22" y1="22" x2="30" y2="30" stroke="#4fd8c4" stroke-width=".75" opacity=".4"/>
+      <line x1="38" y1="22" x2="30" y2="30" stroke="#4fd8c4" stroke-width=".75" opacity=".4"/>
+      <line x1="22" y1="38" x2="30" y2="30" stroke="#4fd8c4" stroke-width=".75" opacity=".4"/>
+      <line x1="38" y1="38" x2="30" y2="30" stroke="#4fd8c4" stroke-width=".75" opacity=".4"/>
+    </svg>
+  </div>
+  <div class="loader-name" id="loader-name" data-en="SANDARU GAURANGE" data-zh="Sandaru · Gaurange">SANDARU GAURANGE</div>
+  <div class="loader-bar-wrap"><div class="loader-bar" id="loader-bar"></div></div>
+  <div class="loader-pct" id="loader-pct">0%</div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-brand">
+    <div class="nav-brand-mark">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="14" cy="14" r="2.5" fill="#4fd8c4"/>
+        <circle cx="14" cy="14" r="6" stroke="#4fd8c4" stroke-width=".75" opacity=".4"/>
+        <line x1="6" y1="7" x2="14" y2="14" stroke="#4fd8c4" stroke-width=".75" opacity=".6"/>
+        <line x1="22" y1="7" x2="14" y2="14" stroke="#4fd8c4" stroke-width=".75" opacity=".6"/>
+        <line x1="6" y1="21" x2="14" y2="14" stroke="#4fd8c4" stroke-width=".75" opacity=".6"/>
+        <line x1="22" y1="21" x2="14" y2="14" stroke="#4fd8c4" stroke-width=".75" opacity=".6"/>
+        <circle cx="6" cy="7" r="2" fill="none" stroke="#4fd8c4" stroke-width="1"/>
+        <circle cx="22" cy="7" r="2" fill="none" stroke="#4fd8c4" stroke-width="1"/>
+        <circle cx="6" cy="21" r="2" fill="none" stroke="#4fd8c4" stroke-width="1"/>
+        <circle cx="22" cy="21" r="2" fill="none" stroke="#4fd8c4" stroke-width="1"/>
+      </svg>
+    </div>
+    <span class="nav-brand-text">Sandaru Gaurange</span>
+  </div>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#about" data-section="about" data-en="Profile" data-zh="简介">Profile</a></li>
+    <li><a href="#experience" data-section="experience" data-en="Experience" data-zh="工作经历">Experience</a></li>
+    <li><a href="#projects-aerial" data-section="projects-aerial" data-en="Projects" data-zh="项目">Projects</a></li>
+    <li><a href="#education" data-section="education" data-en="Education" data-zh="教育背景">Education</a></li>
+    <li><a href="#contact" data-section="contact" data-en="Contact" data-zh="联系方式">Contact</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:1.25rem">
+    <div class="nav-status"><span class="status-dot"></span><span data-en="Available" data-zh="求职中">Available</span></div>
+    <div class="nav-contact">
+      <a href="mailto:sandaru28gaurange@gmail.com" data-en="Email" data-zh="邮箱">Email</a>
+      <a href="wxid_tbmxcdudhbx412" target="_blank" rel="noopener" data-en="Wechat" data-zh="微信">Wechat</a>
+    </div>
+    <div class="lang-switch" role="group" aria-label="Language switch">
+      <button type="button" id="lang-en" class="active" onclick="setLanguage('en')">EN</button>
+      <button type="button" id="lang-zh" onclick="setLanguage('zh')">中文</button>
+    </div>
+  </div>
+</nav>
+
+<!-- PANEL NAVIGATION DOTS -->
+<div id="panel-dots" role="tablist" aria-label="Section navigation">
+  <button class="panel-dot active" data-index="0" data-tip-en="Home" data-tip-zh="首页" data-label="Home" onclick="goToPanel(0)"></button>
+  <button class="panel-dot" data-index="1" data-tip-en="Profile" data-tip-zh="简介" data-label="Profile" onclick="goToPanel(1)"></button>
+  <button class="panel-dot" data-index="2" data-tip-en="Experience" data-tip-zh="经历" data-label="Experience" onclick="goToPanel(2)"></button>
+  <button class="panel-dot" data-index="3" data-tip-en="Aerial Work" data-tip-zh="航空作品" data-label="Aerial Work" onclick="goToPanel(3)"></button>
+  <button class="panel-dot" data-index="4" data-tip-en="Portfolio" data-tip-zh="作品集" data-label="Portfolio" onclick="goToPanel(4)"></button>
+  <button class="panel-dot" data-index="5" data-tip-en="Education" data-tip-zh="教育背景" data-label="Education" onclick="goToPanel(5)"></button>
+  <button class="panel-dot" data-index="6" data-tip-en="Contact" data-tip-zh="联系方式" data-label="Contact" onclick="goToPanel(6)"></button>
+</div>
+
+<div class="panel-swipe-hint" id="panel-swipe-hint">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  <span data-en="Swipe, drag, or fly through with ↑ ↓" data-zh="滑动、拖动，或用 ↑ ↓ 飞行浏览">Swipe, drag, or fly through with ↑ ↓</span>
+</div>
+
+<div id="panel-track">
+<!-- HERO -->
+<section id="hero" class="panel panel-hero" data-panel-index="0">
+  <div id="hero-2d-scene" aria-hidden="true">
+    <div class="hero-cloud hc1"></div>
+    <div class="hero-cloud hc2"></div>
+    <div class="hero-cloud hc3"></div>
+    <div id="hero-drone-wrap">
+      <div id="hero-drone-tilt">
+        <svg id="hero-drone" viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg">
+          <line x1="110" y1="90" x2="40" y2="40" stroke="#28455c" stroke-width="2.5"/>
+          <line x1="110" y1="90" x2="180" y2="40" stroke="#28455c" stroke-width="2.5"/>
+          <line x1="110" y1="90" x2="40" y2="140" stroke="#28455c" stroke-width="2.5"/>
+          <line x1="110" y1="90" x2="180" y2="140" stroke="#28455c" stroke-width="2.5"/>
+          <rect x="86" y="76" width="48" height="28" rx="6" fill="#0f2233" stroke="#4fd8c4" stroke-width="1.2"/>
+          <rect x="94" y="70" width="32" height="10" rx="3" fill="#122435" stroke="#3f7cad" stroke-width="1"/>
+          <circle cx="110" cy="90" r="4.5" fill="#4fd8c4" class="hero-core-pulse"/>
+          <g class="hero-rotor" style="transform-origin:40px 40px"><circle cx="40" cy="40" r="7" fill="#18324a" stroke="#4fd8c4" stroke-width="1"/><ellipse cx="40" cy="40" rx="24" ry="4" fill="#5fd6c2" opacity=".35"/><ellipse cx="40" cy="40" rx="24" ry="4" fill="#5fd6c2" opacity=".35" transform="rotate(90 40 40)"/></g>
+          <g class="hero-rotor rev" style="transform-origin:180px 40px"><circle cx="180" cy="40" r="7" fill="#18324a" stroke="#4fd8c4" stroke-width="1"/><ellipse cx="180" cy="40" rx="24" ry="4" fill="#5fd6c2" opacity=".35"/><ellipse cx="180" cy="40" rx="24" ry="4" fill="#5fd6c2" opacity=".35" transform="rotate(90 180 40)"/></g>
+          <g class="hero-rotor rev" style="transform-origin:40px 140px"><circle cx="40" cy="140" r="7" fill="#18324a" stroke="#4fd8c4" stroke-width="1"/><ellipse cx="40" cy="140" rx="24" ry="4" fill="#5fd6c2" opacity=".35"/><ellipse cx="40" cy="140" rx="24" ry="4" fill="#5fd6c2" opacity=".35" transform="rotate(90 40 140)"/></g>
+          <g class="hero-rotor" style="transform-origin:180px 140px"><circle cx="180" cy="140" r="7" fill="#18324a" stroke="#4fd8c4" stroke-width="1"/><ellipse cx="180" cy="140" rx="24" ry="4" fill="#5fd6c2" opacity=".35"/><ellipse cx="180" cy="140" rx="24" ry="4" fill="#5fd6c2" opacity=".35" transform="rotate(90 180 140)"/></g>
+          <circle cx="40" cy="40" r="2.5" fill="#4fd8c4" class="hero-nav-light"/>
+          <circle cx="180" cy="40" r="2.5" fill="#d4af6a" class="hero-nav-light"/>
+          <circle cx="40" cy="140" r="2.5" fill="#d4af6a" class="hero-nav-light"/>
+          <circle cx="180" cy="140" r="2.5" fill="#4fd8c4" class="hero-nav-light"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="corner-hud tl">
+    <div class="hud-bracket">
+      <div data-en="SYS: ONLINE" data-zh="系统：在线">SYS: ONLINE</div>
+      <div style="margin-top:.25rem;color:#4fd8c4" data-en="ENG: MECHATRONICS" data-zh="工程：机电一体化">ENG: MECHATRONICS</div>
+    </div>
+  </div>
+  <div class="corner-hud tr">
+    <div class="hud-bracket">
+      <div data-en="NODE: SL-CN BRIDGE" data-zh="节点：斯里兰卡–中国">NODE: SL-CN BRIDGE</div>
+      <div style="margin-top:.25rem;color:#4fd8c4" data-en="SPEC: AERIAL / UAS" data-zh="专长：航空 / 无人机系统">SPEC: AERIAL / UAS</div>
+    </div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow" id="hero-eyebrow"><span class="hero-eyebrow-line"></span><span data-en="Mechatronics · Autonomous Systems · Aerial Robotics" data-zh="机电一体化 · 自主系统 · 空中机器人技术">Mechatronics · Autonomous Systems · Aerial Robotics</span></div>
+    <h1 class="hero-h1" id="hero-h1"><span data-en="Sandaru" data-zh="Sandaru">Sandaru</span><em data-en="Gaurange" data-zh="Gaurange">Gaurange</em></h1>
+    <p class="hero-subtitle" id="hero-subtitle" data-en="Mechatronics & Autonomous Systems Engineer building drone platforms, eVTOL concepts, and intelligent aerial systems." data-zh="机电一体化与自主系统工程师，专注于无人机平台、eVTOL 概念设计与智能航空系统的研发。">Mechatronics & Autonomous Systems Engineer building drone platforms, eVTOL concepts, and intelligent aerial systems.</p>
+    <div class="hero-tags" id="hero-tags">
+      <span class="hero-tag" data-en="UAV / Drone Systems" data-zh="无人机系统">UAV / Drone Systems</span>
+      <span class="hero-tag" data-en="ROS2 · Python" data-zh="ROS2 · Python">ROS2 · Python</span>
+      <span class="hero-tag" data-en="eVTOL Design" data-zh="eVTOL 设计">eVTOL Design</span>
+      <span class="hero-tag" data-en="IT Architecture" data-zh="IT 架构">IT Architecture</span>
+      <span class="hero-tag" data-en="AI / ML Systems" data-zh="人工智能 / 机器学习系统">AI / ML Systems</span>
+      <span class="hero-tag" data-en="FinTech Engines" data-zh="金融科技引擎">FinTech Engines</span>
+    </div>
+    <div class="hero-actions" id="hero-actions">
+      <a href="#projects-aerial" class="btn-primary" data-en="View Aerospace Work ↓" data-zh="查看航空航天作品 ↓">View Aerospace Work ↓</a>
+      <a href="#contact" class="btn-secondary" data-en="Get in Touch" data-zh="联系我">Get in Touch</a>
+    </div>
+  </div>
+  <div class="hero-telemetry" id="hero-telemetry">
+    <div class="telem-row"><span class="telem-label" data-en="PITCH" data-zh="俯仰角">PITCH</span><span class="telem-val" id="t-pitch">+0.00°</span></div>
+    <div class="telem-row"><span class="telem-label" data-en="ROLL" data-zh="横滚角">ROLL</span><span class="telem-val" id="t-roll">+0.00°</span></div>
+    <div class="telem-row"><span class="telem-label" data-en="YAW" data-zh="偏航角">YAW</span><span class="telem-val" id="t-yaw">+0.00°</span></div>
+    <div class="telem-row"><span class="telem-label" data-en="ALT" data-zh="高度">ALT</span><span class="telem-val">120.4 m</span></div>
+    <div class="telem-row"><span class="telem-label" data-en="MODE" data-zh="模式">MODE</span><span class="telem-val" style="color:#4ecb8a" data-en="AUTO" data-zh="自动">AUTO</span></div>
+  </div>
+  <div class="hero-scroll-hint" id="hero-scroll-hint">
+    <div class="scroll-text" data-en="Fly through" data-zh="向前飞行">Fly through</div>
+    <svg class="fly-chevrons" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path class="chev chev-1" d="M4 4l8 8-8 8" stroke="#4fd8c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="chev chev-2" d="M16 4l8 8-8 8" stroke="#4fd8c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="chev chev-3" d="M28 4l8 8-8 8" stroke="#4fd8c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="section panel" style="padding:6rem 3rem" data-panel-index="1">
+<div class="panel-inner">
+  <div class="about-grid">
+    <div class="about-text section-reveal">
+      <div class="img-frame profile-photo-frame" data-caption="assets/profile.jpg">
+        <img src="assets/profile.jpg" alt="Sandaru Gaurange Alwis — profile photo" loading="lazy"
+             onload="this.style.opacity=1" onerror="this.parentElement.classList.add('img-missing')">
+      </div>
+      <div class="section-label"><span class="section-label-line"></span><span class="section-number">01</span><span data-en="Profile" data-zh="简介">Profile</span></div>
+      <div class="section-title" style="margin-bottom:1.5rem" data-en-html="Engineer.<br><span>Builder.</span> Operator." data-zh-html="工程师。<br><span>建造者。</span>执行者。">Engineer.<br><span>Builder.</span> Operator.</div>
+      <p data-en="Innovative and results-driven professional with a robust background in IT project management and systems development. Skilled in establishing international partnerships and virtual branches to expand organizational reach and foster growth." data-zh="富有创新精神、注重成果的专业人才，拥有扎实的 IT 项目管理与系统开发背景。擅长建立国际合作关系与虚拟分支机构，以拓展组织的全球影响力并推动增长。">Innovative and results-driven professional with a robust background in IT project management and systems development. Skilled in establishing international partnerships and virtual branches to expand organizational reach and foster growth.</p>
+      <p data-en="Strong technical expertise in mechatronics engineering, demonstrating a commitment to continuous learning and professional development. Proven ability to streamline operations, enhance client satisfaction, and achieve strategic business objectives." data-zh="在机电一体化工程方面具备扎实的技术功底，持续学习、不断精进。具备优化运营流程、提升客户满意度并达成战略业务目标的实证能力。">Strong technical expertise in mechatronics engineering, demonstrating a commitment to continuous learning and professional development. Proven ability to streamline operations, enhance client satisfaction, and achieve strategic business objectives.</p>
+    </div>
+    <div class="about-stats section-reveal">
+      <div class="stat-card">
+        <div class="stat-num">4+</div>
+        <div class="stat-label" data-en="Aerial Projects" data-zh="航空项目">Aerial Projects</div>
+        <div class="stat-desc" data-en="Drone, eVTOL, and autonomous navigation systems" data-zh="无人机、eVTOL 与自主导航系统">Drone, eVTOL, and autonomous navigation systems</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">25+</div>
+        <div class="stat-label" data-en="Total Projects" data-zh="项目总数">Total Projects</div>
+        <div class="stat-desc" data-en="Across aerospace, AI, FinTech, and software ventures" data-zh="涵盖航空航天、人工智能、金融科技与软件多个领域">Across aerospace, AI, FinTech, and software ventures</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">BEng</div>
+        <div class="stat-label" data-en="Honours Degree" data-zh="荣誉学位">Honours Degree</div>
+        <div class="stat-desc" data-en="Mechatronics & Autonomous Systems — LJMU" data-zh="机电一体化与自主系统 — 利物浦约翰摩尔大学">Mechatronics & Autonomous Systems — LJMU</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--amber)">🛸</div>
+        <div class="stat-label" data-en="Open to China" data-zh="有意赴华工作">Open to China</div>
+        <div class="stat-desc" data-en="Drone / eVTOL / aerospace engineering roles" data-zh="无人机 / eVTOL / 航空航天工程岗位">Drone / eVTOL / aerospace engineering roles</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience" class="section panel" data-panel-index="2">
+<div class="panel-inner">
+  <div class="section-header section-reveal">
+    <div class="section-label"><span class="section-label-line"></span><span class="section-number">02</span><span data-en="Work History" data-zh="工作经历">Work History</span></div>
+    <div class="section-title" data-en-html='Professional <span>Experience</span>' data-zh-html='职业<span>经历</span>'>Professional <span>Experience</span></div>
+  </div>
+  <div class="exp-timeline">
+
+    <div class="exp-item section-reveal">
+      <div class="exp-dot"></div>
+      <div class="exp-period" data-en="Jan 2025 — Present" data-zh="2025年1月至今">Jan 2025 — Present</div>
+      <div class="exp-company">S.M. Engineering Company Pvt Ltd</div>
+      <div class="exp-role" data-en="IT Officer" data-zh="IT 主管">IT Officer</div>
+      <div class="exp-label" data-en="Systems & Support" data-zh="系统与支持">Systems & Support</div>
+      <div class="exp-bullets">
+        <div class="exp-bullet" data-en="Maintained hardware, software, and networks, providing efficient technical support to staff." data-zh="负责硬件、软件与网络的维护，为员工提供高效的技术支持。">Maintained hardware, software, and networks, providing efficient technical support to staff.</div>
+        <div class="exp-bullet" data-en="Supported IT policy development, system upgrades, and technology initiatives to enhance organizational efficiency." data-zh="协助制定 IT 政策、推动系统升级与技术改进项目，以提升组织运营效率。">Supported IT policy development, system upgrades, and technology initiatives to enhance organizational efficiency.</div>
+      </div>
+    </div>
+
+    <div class="exp-item section-reveal">
+      <div class="exp-dot"></div>
+      <div class="exp-period" data-en="May 2024 — December 2024" data-zh="2024年5月至2024年12月">May 2024 — December 2024</div>
+      <div class="exp-company">Silicon Radon Networks</div>
+      <div class="exp-role" data-en="Executive — IT Department" data-zh="IT 部门主管">Executive — IT Department</div>
+      <div class="exp-label" data-en="Global Reach" data-zh="全球拓展">Global Reach</div>
+      <div class="exp-bullets">
+        <div class="exp-bullet" data-en="Established international partnerships with organizations of varying sizes, including small and medium enterprises, to expand the company's global reach." data-zh="与不同规模的机构（包括中小企业）建立国际合作关系，拓展公司的全球业务版图。">Established international partnerships with organizations of varying sizes, including small and medium enterprises, to expand the company's global reach.</div>
+        <div class="exp-bullet" data-en="Established virtual branches worldwide to attract and serve a broader international client base, fostering international expansion and growth." data-zh="在全球范围内建立虚拟分支机构，吸引并服务更广泛的国际客户群体，推动国际化扩张与增长。">Established virtual branches worldwide to attract and serve a broader international client base, fostering international expansion and growth.</div>
+      </div>
+      <div class="exp-label" data-en="Systems Development" data-zh="系统开发">Systems Development</div>
+      <div class="exp-bullets">
+        <div class="exp-bullet" data-en="Led the development and integration of the Graduation Portal Project — modules for Graduation Creation, Hall Setup, ID Assignments, Seat Selection, Cloak Selection, and Student QR Code System." data-zh="主导开发并集成毕业典礼门户系统项目——涵盖典礼创建、场地设置、证件分配、座位选择、礼服选择及学生二维码系统等模块。">Led the development and integration of the Graduation Portal Project — modules for Graduation Creation, Hall Setup, ID Assignments, Seat Selection, Cloak Selection, and Student QR Code System.</div>
+        <div class="exp-bullet" data-en="Designed and deployed the Student Booking System for graduation packages, additional seats, and integrated payments." data-zh="设计并部署学生预订系统，支持毕业套餐预订、加座及集成支付功能。">Designed and deployed the Student Booking System for graduation packages, additional seats, and integrated payments.</div>
+        <div class="exp-bullet" data-en="Developed a Hostel Management System streamlining room allocations, check-ins, check-outs, and transfers, with personalized email notifications." data-zh="开发宿舍管理系统，优化房间分配、入住、退宿及转宿流程，并支持个性化邮件通知。">Developed a Hostel Management System streamlining room allocations, check-ins, check-outs, and transfers, with personalized email notifications.</div>
+        <div class="exp-bullet" data-en="Implemented an Assets Management System with detailed roles and access controls, tracking buildings, floors, rooms, assigned items, and personnel. Introduced QR codes for precise inventory management and an audit function." data-zh="实施资产管理系统，具备细化的角色与权限控制，可追踪楼栋、楼层、房间、分配物品及相关人员，并引入二维码实现精准库存管理与审计功能。">Implemented an Assets Management System with detailed roles and access controls, tracking buildings, floors, rooms, assigned items, and personnel. Introduced QR codes for precise inventory management and an audit function.</div>
+      </div>
+    </div>
+
+    <div class="exp-item section-reveal">
+      <div class="exp-dot dim"></div>
+      <div class="exp-period dim" data-en="July 2022 — December 2022" data-zh="2022年7月至2022年12月">July 2022 — December 2022</div>
+      <div class="exp-company">Orel Corporation</div>
+      <div class="exp-role" data-en="Intern — R&D | Health and Education" data-zh="研发实习生 | 健康与教育领域">Intern — R&D | Health and Education</div>
+    </div>
+
+  </div>
+
+</div>
+</section>
+
+<!-- AERIAL PROJECTS -->
+<section id="projects-aerial" class="section panel" data-panel-index="3">
+<div class="panel-inner">
+  <div class="section-header section-reveal">
+    <div class="section-label"><span class="section-label-line"></span><span class="section-number">03</span><span data-en="Featured Work" data-zh="精选作品">Featured Work</span></div>
+    <div class="section-title" data-en-html='Aerial & <span>Autonomous Systems</span>' data-zh-html='航空与<span>自主系统</span>'>Aerial & <span>Autonomous Systems</span></div>
+    <p class="section-sub" data-en="Drone platforms, eVTOL concepts, and autonomous navigation — the work most relevant for aerospace and aerial vehicle roles." data-zh="无人机平台、eVTOL 概念设计与自主导航——与航空航天及飞行器岗位最相关的工作。">Drone platforms, eVTOL concepts, and autonomous navigation — the work most relevant for aerospace and aerial vehicle roles.</p>
+  </div>
+  <div class="aerial-grid">
+    <div class="aerial-card featured section-reveal" id="card-drone-1">
+      <div class="card-3d-scene">
+        <div class="signal-rings"><span></span><span></span><span></span></div>
+        <svg class="card-drone-icon" viewBox="0 0 120 90" style="color:var(--cyan)" aria-hidden="true"><use href="#drone-icon"/></svg>
+        <div class="card-scan-line"></div><div class="card-hud-overlay">PROJECT-001 // AERIAL</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cat" data-en="Final Year Engineering Project" data-zh="毕业设计项目">Final Year Engineering Project</div>
+        <div class="card-title" data-en="Mobile Signal Booster Drone" data-zh="移动信号增强无人机">Mobile Signal Booster Drone</div>
+        <div class="card-desc" data-en="Final-year engineering project combining mechatronics and RF engineering: an autonomous UAV platform carrying signal-repeater hardware to extend mobile network coverage into underserved or disaster-affected areas, providing rapid airborne deployment where ground infrastructure is unavailable or damaged." data-zh="毕业设计项目，融合机电一体化与射频工程：搭载信号中继设备的自主无人机平台，用于在基础设施薄弱或受灾地区扩展移动网络覆盖，可在地面网络缺失或损毁时实现快速空中部署。">Autonomous UAV system designed to extend mobile network coverage in underserved or disaster-affected areas. Integrates signal repeater hardware with a drone platform for airborne deployment.</div>
+        <div class="card-footer"><div class="card-tags"><span class="card-tag" data-en="UAV" data-zh="无人机">UAV</span><span class="card-tag" data-en="RF Systems" data-zh="射频系统">RF Systems</span><span class="card-tag" data-en="Autonomous" data-zh="自主系统">Autonomous</span><span class="card-tag" data-en="Mechatronics" data-zh="机电一体化">Mechatronics</span></div><a class="card-arrow" href="assets/projects/mobile-signal-booster-drone.pdf" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+      </div>
+    </div>
+    <div class="aerial-card section-reveal" id="card-drone-2">
+      <div class="card-3d-scene">
+        <div class="blueprint-grid"></div>
+        <div class="concept-frame"></div>
+        <svg class="card-drone-icon" viewBox="0 0 120 90" style="color:var(--blue)" aria-hidden="true"><use href="#drone-icon"/></svg>
+        <div class="card-scan-line"></div><div class="card-hud-overlay">PROJECT-002 // EVTOL</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cat" data-en="Aerospace Design" data-zh="航空航天设计">Aerospace Design</div>
+        <div class="card-title" style="display:flex;align-items:center;flex-wrap:wrap"><span data-en="Intelligent Aerial Housing & eVTOL Design" data-zh="智能航空停机系统与 eVTOL 设计">Intelligent Aerial Housing & eVTOL Design</span><span class="status-badge status-concept" data-en="Concept / Future Planned" data-zh="概念 / 未来计划">Concept / Future Planned</span></div>
+        <div class="card-desc" data-en="A conceptual aerospace design study pairing an eVTOL (electric vertical take-off and landing) vehicle with an intelligent housing/docking system, exploring how urban air mobility platforms could integrate with smart infrastructure for docking, charging, and city-wide operation." data-zh="概念性航空航天设计研究，将 eVTOL（电动垂直起降飞行器）与智能停机 / 收纳系统相结合，探索城市空中交通平台如何与智能基础设施集成，实现停靠、充电与城市环境中的运行。">Conceptual design of an eVTOL vehicle integrated with intelligent housing systems for urban air mobility.</div>
+        <div class="card-footer"><div class="card-tags"><span class="card-tag" data-en="eVTOL" data-zh="eVTOL">eVTOL</span><span class="card-tag" data-en="Aerodynamics" data-zh="空气动力学">Aerodynamics</span><span class="card-tag" data-en="Design" data-zh="设计">Design</span></div></div>
+      </div>
+    </div>
+    <div class="aerial-card section-reveal" id="card-drone-3">
+      <div class="card-3d-scene">
+        <div class="turntable-ring"></div>
+        <svg class="card-drone-icon" viewBox="0 0 120 90" style="color:var(--amber)" aria-hidden="true"><use href="#drone-icon"/></svg>
+        <div class="card-scan-line"></div><div class="card-hud-overlay">PROJECT-003 // SAV</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cat" data-en="Vehicle Design" data-zh="飞行器设计">Vehicle Design</div>
+        <div class="card-title" style="display:flex;align-items:center;flex-wrap:wrap"><span data-en="Single-Person Aerial Vehicle Design" data-zh="单人飞行器设计">Single-Person Aerial Vehicle Design</span><span class="status-badge status-concept" data-en="Concept / Future Planned" data-zh="概念 / 未来计划">Concept / Future Planned</span></div>
+        <div class="card-desc" data-en="An engineering design study for a compact, single-occupant personal aerial vehicle, covering structural layout, propulsion system selection, and flight control analysis as an early-stage feasibility exploration for personal air mobility." data-zh="面向紧凑型单人载人飞行器的工程设计研究，涵盖结构布局、推进系统选型与飞行控制分析，作为个人空中出行方案的早期可行性探索。">Engineering design study for a compact single-occupant aerial vehicle covering structural, propulsion, and flight control analysis.</div>
+        <div class="card-footer"><div class="card-tags"><span class="card-tag" data-en="Flight Control" data-zh="飞行控制">Flight Control</span><span class="card-tag" data-en="Propulsion" data-zh="推进系统">Propulsion</span><span class="card-tag" data-en="Structural" data-zh="结构设计">Structural</span></div></div>
+      </div>
+    </div>
+    <div class="aerial-card section-reveal" id="card-drone-4">
+      <div class="card-3d-scene">
+        <div class="radar-sweep"></div>
+        <div class="nav-path"><span class="nav-marker"></span></div>
+        <svg class="card-drone-icon" viewBox="0 0 120 90" style="color:var(--green)" aria-hidden="true"><use href="#drone-icon"/></svg>
+        <div class="card-scan-line"></div><div class="card-hud-overlay">PROJECT-004 // NAV</div>
+      </div>
+      <div class="card-body">
+        <div class="card-cat" data-en="Autonomy & Navigation" data-zh="自主性与导航">Autonomy & Navigation</div>
+        <div class="card-title" style="display:flex;align-items:center;flex-wrap:wrap"><span data-en="Autonomous Drone Navigation — ROS2 / Python / Simulation" data-zh="自主无人机导航系统 — ROS2 / Python / 仿真">Autonomous Drone Navigation — ROS2 / Python / Simulation</span><span class="status-badge status-ongoing" data-en="Ongoing" data-zh="进行中">Ongoing</span></div>
+        <div class="card-desc" data-en="A ROS2- and Python-based autonomous navigation stack combining sensor fusion with a simulation environment, built to test obstacle-avoidance and path-planning behaviour for drones before real-world flight." data-zh="基于 ROS2 与 Python 构建的自主导航系统，结合传感器融合与仿真环境，用于在真实飞行前测试无人机的避障与路径规划表现。">Autonomous navigation stack using ROS2 and Python, with sensor fusion and simulation environment for obstacle avoidance and path planning.</div>
+        <div class="card-footer"><div class="card-tags"><span class="card-tag" data-en="ROS2" data-zh="ROS2">ROS2</span><span class="card-tag" data-en="Python" data-zh="Python">Python</span><span class="card-tag" data-en="Sensor Fusion" data-zh="传感器融合">Sensor Fusion</span><span class="card-tag" data-en="Simulation" data-zh="仿真">Simulation</span></div></div>
+      </div>
+    </div>
+    <div class="aerial-card section-reveal">
+      <div class="card-body" style="padding:2rem">
+        <div class="card-cat" data-en="Robotics" data-zh="机器人技术">Robotics</div>
+        <div class="card-title" style="display:flex;align-items:center;flex-wrap:wrap"><span data-en="Emerging Robot Solution Prototype" data-zh="新兴机器人方案原型">Emerging Robot Solution Prototype</span><span class="status-badge status-ongoing" data-en="Ongoing" data-zh="进行中">Ongoing</span></div>
+        <div class="card-desc" data-en="An early-stage robotics prototype exploring alternative actuation and perception architectures, used as a testbed for ideas intended for next-generation autonomous platforms." data-zh="早期机器人原型，探索新型驱动与感知架构，作为面向下一代自主平台理念验证的测试平台。">Prototype robotics system exploring novel actuation and perception architectures for next-generation autonomous platforms.</div>
+        <div class="card-footer"><div class="card-tags"><span class="card-tag" data-en="Robotics" data-zh="机器人技术">Robotics</span><span class="card-tag" data-en="Actuation" data-zh="驱动">Actuation</span><span class="card-tag" data-en="Prototype" data-zh="原型">Prototype</span></div></div>
+      </div>
+    </div>
+    <div class="aerial-card section-reveal">
+      <div class="card-body" style="padding:2rem">
+        <div class="card-cat" data-en="IoT & Sustainability" data-zh="物联网与可持续发展">IoT & Sustainability</div>
+        <div class="card-title" style="display:flex;align-items:center;flex-wrap:wrap"><span data-en="IoT System Design for Sustainable Development" data-zh="面向可持续发展的物联网系统设计">IoT System Design for Sustainable Development</span><span class="status-badge status-concept" data-en="Concept / Future Planned" data-zh="概念 / 未来计划">Concept / Future Planned</span></div>
+        <div class="card-desc" data-en="An end-to-end IoT system architecture — sensors through to cloud reporting — designed for environmental monitoring and smart infrastructure applications that support sustainable development goals." data-zh="端到端物联网系统架构（从传感器到云端报告），面向环境监测与智能基础设施应用，助力可持续发展目标的实现。">End-to-end IoT architecture for environmental monitoring and smart infrastructure supporting sustainable development goals.</div>
+        <div class="card-footer"><div class="card-tags"><span class="card-tag" data-en="IoT" data-zh="物联网">IoT</span><span class="card-tag" data-en="Embedded" data-zh="嵌入式">Embedded</span><span class="card-tag" data-en="Cloud" data-zh="云端">Cloud</span></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- OTHER PROJECTS -->
+<section id="projects-other" class="section panel" data-panel-index="4">
+<div class="panel-inner">
+  <div class="section-header section-reveal">
+    <div class="section-label"><span class="section-label-line"></span><span class="section-number">04</span><span data-en="Portfolio" data-zh="作品集">Portfolio</span></div>
+    <div class="section-title" data-en-html='All <span>Projects</span>' data-zh-html='全部<span>项目</span>'>All <span>Projects</span></div>
+    <p class="section-sub" data-en="This page is less a list than a working log. A final-year engineering team took a drone from spec sheet to flying prototype; eVTOL and personal-aircraft concepts got planned out from first principles before a single part existed; thirty-plus small tools got built because a repetitive task was worth automating properly instead of doing by hand again; trading and disease-forecasting models turned messy data into a number worth trusting; and somewhere in there is a Sri Lankan-themed game and a chatbot trained on Buddhist scripture, because not everything has to ship for a client to be worth finishing. Different domains, same approach: understand what the person on the other end actually needs, plan the build, keep them posted, ship it, and hold onto whatever's still useful afterward." data-zh="与其说这是一份清单，不如说是一本工作笔记。一个大四工程团队把一架无人机从设计规格做成了真正能飞的原型机；eVTOL 与个人飞行器概念从最基本的原理出发被完整规划，哪怕还没有一个零件被造出来；三十多个小工具被开发出来，只因为一个重复性任务值得被好好自动化，而不是一遍遍手动去做；交易与疾病预测模型把杂乱的数据变成了一个真正值得信赖的数字；其间还穿插着一款斯里兰卡主题的游戏，和一个基于佛教经典训练的聊天机器人——毕竟不是所有值得做完的东西都要交付给客户。领域各不相同，做事方式却始终如一：先弄清楚对方真正需要什么，规划好怎么做，过程中保持沟通，做出来，然后把还有用的部分留下来。">This page is less a list than a working log. A final-year engineering team took a drone from spec sheet to flying prototype; eVTOL and personal-aircraft concepts got planned out from first principles before a single part existed; thirty-plus small tools got built because a repetitive task was worth automating properly instead of doing by hand again; trading and disease-forecasting models turned messy data into a number worth trusting; and somewhere in there is a Sri Lankan-themed game and a chatbot trained on Buddhist scripture, because not everything has to ship for a client to be worth finishing. Different domains, same approach: understand what the person on the other end actually needs, plan the build, keep them posted, ship it, and hold onto whatever's still useful afterward.</p>
+  </div>
+  <div class="filter-row">
+    <button class="filter-btn active" data-cat="all" data-en="All" data-zh="全部">All</button>
+    <button class="filter-btn" data-cat="ai" data-en="AI & Systems" data-zh="人工智能与系统">AI & Systems</button>
+    <button class="filter-btn" data-cat="fintech" data-en="Trading & Finance" data-zh="交易与金融">Trading & Finance</button>
+    <button class="filter-btn" data-cat="software" data-en="Software & Products" data-zh="软件与产品">Software & Products</button>
+    <button class="filter-btn" data-cat="automation" data-en="Automation & Media" data-zh="自动化与媒体">Automation & Media</button>
+    <button class="filter-btn" data-cat="games" data-en="Games & Robotics" data-zh="游戏与机器人">Games & Robotics</button>
+  </div>
+  <div class="proj-grid" id="proj-grid">
+    <div class="proj-card" data-cat="ai"><div class="proj-cat" data-en="AI & Systems" data-zh="人工智能与系统">AI & Systems</div><div class="proj-name" data-en="Disease Forecasting AI (WHO &amp; Sri Lanka Data)" data-zh="疾病预测人工智能（世卫组织与斯里兰卡数据）">Disease Forecasting AI (WHO & Sri Lanka Data)</div><div class="proj-desc" data-en="A machine learning forecasting model built around WHO disease-surveillance and Sri Lanka public-health data, applying time-series and statistical methods to predict disease case trends. Built and run in Google Colab." data-zh="基于世卫组织疾病监测数据与斯里兰卡公共卫生数据构建的机器学习预测模型，运用时间序列与统计方法预测疾病病例趋势，基于 Google Colab 构建与运行。">A machine learning forecasting model built around WHO disease-surveillance and Sri Lanka public-health data, applying time-series and statistical methods to predict disease case trends. Built and run in Google Colab.</div><div class="proj-tags"><span class="proj-tag" data-en="ML" data-zh="机器学习">ML</span><span class="proj-tag" data-en="Data Science" data-zh="数据科学">Data Science</span><span class="proj-tag" data-en="Forecasting" data-zh="预测">Forecasting</span><span class="proj-tag" data-en="Google Colab">Google Colab</span></div><a class="proj-explore" href="https://colab.research.google.com/drive/1_wuiu1TFFEXaCxsMcp-81BncmJOJwMMb" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    
+    <div class="proj-card" data-cat="ai"><div class="proj-cat" data-en="AI & Systems" data-zh="人工智能与系统">AI & Systems</div><div class="proj-name" data-en="Big Data Retail Analytics & Decision-Making" data-zh="零售大数据分析与决策系统">Big Data Retail Analytics & Decision-Making</div><div class="proj-desc" data-en="A big-data analytics project processing retail datasets to surface patterns that support business decision-making." data-zh="大数据分析项目，处理零售数据集以发现有助于业务决策的规律与洞察。">A big-data analytics project processing retail datasets to support decision-making.</div><div class="proj-tags"><span class="proj-tag" data-en="Big Data" data-zh="大数据">Big Data</span><span class="proj-tag" data-en="Analytics" data-zh="分析">Analytics</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/big-data-retail-analytics-and-decision-m" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="ai"><div class="proj-cat" data-en="AI & Systems" data-zh="人工智能与系统">AI & Systems</div><div class="proj-name" data-en="Autonomous AI Entrepreneur System" data-zh="自主人工智能创业系统">Autonomous AI Entrepreneur System</div><div class="proj-desc" data-en="A multi-agent LLM system built in Python, coordinating multiple AI agents toward shared entrepreneurial tasks." data-zh="基于 Python 构建的多智能体大语言模型系统，通过多个 AI 智能体协同工作，自主完成创业相关任务。">A multi-agent LLM system in Python coordinating AI agents toward entrepreneurial tasks.</div><div class="proj-tags"><span class="proj-tag" data-en="LLM" data-zh="大语言模型">LLM</span><span class="proj-tag" data-en="Multi-agent" data-zh="多智能体">Multi-agent</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/autonomous-ai-entrepreneur-system" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="ai"><div class="proj-cat" data-en="AI & Systems" data-zh="人工智能与系统">AI & Systems</div><div class="proj-name" data-en="24/7 Cloud AI Agent / Automated Online Income System" data-zh="24/7 云端 AI 智能体 / 自动化在线创收系统">24/7 Cloud AI Agent / Automated Online Income System</div><div class="proj-desc" data-en="A cloud-hosted AI agent designed to run continuously, automating online tasks and workflows without manual intervention." data-zh="部署于云端、可全天候持续运行的 AI 智能体，用于自动化处理在线任务与工作流程，无需人工干预。">A cloud-hosted AI agent that runs continuously to automate online tasks.</div><div class="proj-tags"><span class="proj-tag" data-en="Cloud" data-zh="云端">Cloud</span><span class="proj-tag" data-en="Automation" data-zh="自动化">Automation</span><span class="proj-tag" data-en="AI" data-zh="人工智能">AI</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/24-7-cloud-ai-agent-automated-online-inc" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="ai"><div class="proj-cat" data-en="AI & Systems" data-zh="人工智能与系统">AI & Systems</div><div class="proj-name" data-en="Python / FFmpeg / Faster-Whisper / MoviePy / Pillow Automation Systems" data-zh="Python / FFmpeg / Faster-Whisper / MoviePy / Pillow 自动化系统">Python / FFmpeg / Faster-Whisper / MoviePy / Pillow Automation Systems</div><div class="proj-desc" data-en="A set of Python-based media automation tools built with FFmpeg, Faster-Whisper, MoviePy, and Pillow for video processing, transcription, and image manipulation." data-zh="基于 Python 的媒体自动化工具集，结合 FFmpeg、Faster-Whisper、MoviePy 与 Pillow，用于视频处理、语音转录与图像处理等任务。">Python-based media automation tools for video processing, transcription and image manipulation.</div><div class="proj-tags"><span class="proj-tag" data-en="FFmpeg" data-zh="FFmpeg">FFmpeg</span><span class="proj-tag" data-en="Whisper" data-zh="Whisper">Whisper</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/python-ffmpeg-faster-whisper-moviepy-pil" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="ai"><div class="proj-cat" data-en="AI & Systems" data-zh="人工智能与系统">AI & Systems</div><div class="proj-name" data-en="Buddhism Knowledge AI Chatbot">Buddhism Knowledge AI Chatbot</div><div class="proj-desc" data-en="An AI chatbot cross-referencing knowledge from original Buddhist texts, built to answer questions grounded in Buddhist scripture.">An AI chatbot cross-referencing knowledge from original Buddhist texts, built to answer questions grounded in Buddhist scripture.</div><div class="proj-tags"><span class="proj-tag" data-en="AI">AI</span><span class="proj-tag" data-en="Chatbot">Chatbot</span><span class="proj-tag" data-en="NLP">NLP</span></div><a class="proj-explore" href="https://colab.research.google.com/drive/1ktGj27mBEoL3JIzZwnzemyY9JOwCHoOf" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="fintech"><div class="proj-cat" data-en="Trading & Finance" data-zh="交易与金融">Trading & Finance</div><div class="proj-name" data-en="Binance API Trading & Execution Systems" data-zh="币安 API 交易与执行系统">Binance API Trading & Execution Systems</div><div class="proj-desc" data-en="An algorithmic trading and order-execution system built on the Binance API for automated cryptocurrency trading." data-zh="基于币安（Binance）API 构建的算法交易与订单执行系统，用于自动化加密货币交易。">An algorithmic trading and order-execution system built on the Binance API.</div><div class="proj-tags"><span class="proj-tag" data-en="Binance API" data-zh="币安 API">Binance API</span><span class="proj-tag" data-en="Algo Trading" data-zh="算法交易">Algo Trading</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/binance-api-trading-and-execution-system" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="fintech"><div class="proj-cat" data-en="Trading & Finance" data-zh="交易与金融">Trading & Finance</div><div class="proj-name" data-en="Markov Chain Regime-Switching Trading Engine" data-zh="马尔可夫链市场状态切换交易引擎">Markov Chain Regime-Switching Trading Engine</div><div class="proj-desc" data-en="A quantitative trading engine in Python using Hidden Markov Models to detect market-regime shifts and adapt trading behaviour." data-zh="基于 Python 的量化交易引擎，利用隐马尔可夫模型（HMM）识别市场状态切换，并据此调整交易策略。">A quantitative trading engine using Hidden Markov Models to detect market-regime shifts.</div><div class="proj-tags"><span class="proj-tag" data-en="HMM" data-zh="隐马尔可夫模型">HMM</span><span class="proj-tag" data-en="Quant" data-zh="量化">Quant</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/markov-chain-regime-switching-trading-en" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="fintech"><div class="proj-cat" data-en="Trading & Finance" data-zh="交易与金融">Trading & Finance</div><div class="proj-name" data-en="Crypto Market-Maker" data-zh="加密货币做市系统">Crypto Market-Maker</div><div class="proj-desc" data-en="A cryptocurrency market-making system that manages bid/ask quoting and incorporates risk-management controls." data-zh="加密货币做市系统，负责买卖报价管理并内置风险管理控制机制。">A cryptocurrency market-making system with built-in risk-management controls.</div><div class="proj-tags"><span class="proj-tag" data-en="Market Making" data-zh="做市">Market Making</span><span class="proj-tag" data-en="Risk Mgmt" data-zh="风险管理">Risk Mgmt</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/crypto-market-maker" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="fintech"><div class="proj-cat" data-en="Trading & Finance" data-zh="交易与金融">Trading & Finance</div><div class="proj-name" data-en="Triangular Arbitrage Engine" data-zh="三角套利引擎">Triangular Arbitrage Engine</div><div class="proj-desc" data-en="A real-time triangular arbitrage engine that scans currency/crypto pairs for arbitrage opportunities across three-way trades." data-zh="实时三角套利引擎，扫描货币/加密货币交易对，寻找三方交易中的套利机会。">A real-time engine scanning currency/crypto pairs for triangular arbitrage opportunities.</div><div class="proj-tags"><span class="proj-tag" data-en="Arbitrage" data-zh="套利">Arbitrage</span><span class="proj-tag" data-en="Real-time" data-zh="实时">Real-time</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/triangular-arbitrage-engine" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="fintech"><div class="proj-cat" data-en="Trading & Finance" data-zh="交易与金融">Trading & Finance</div><div class="proj-name" data-en="LSTM/GRU Financial Prediction Engine" data-zh="LSTM/GRU 金融预测引擎">LSTM/GRU Financial Prediction Engine</div><div class="proj-desc" data-en="A deep-learning financial prediction engine using LSTM and GRU recurrent neural networks to model time-series market data." data-zh="基于 LSTM 与 GRU 循环神经网络的深度学习金融预测引擎，用于建模时间序列市场数据。">A deep-learning engine using LSTM/GRU networks to model time-series market data.</div><div class="proj-tags"><span class="proj-tag" data-en="LSTM" data-zh="LSTM">LSTM</span><span class="proj-tag" data-en="GRU" data-zh="GRU">GRU</span><span class="proj-tag" data-en="Deep Learning" data-zh="深度学习">Deep Learning</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/lstm-gru-financial-prediction-engine" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="fintech"><div class="proj-cat" data-en="Trading & Finance" data-zh="交易与金融">Trading & Finance</div><div class="proj-name" data-en="Institutional TWAP/VWAP Execution Engine" data-zh="机构级 TWAP/VWAP 执行引擎">Institutional TWAP/VWAP Execution Engine</div><div class="proj-desc" data-en="An institutional-style order-execution engine implementing TWAP and VWAP strategies to minimize market impact on large trades." data-zh="面向机构的订单执行引擎，实现 TWAP（时间加权平均价格）与 VWAP（成交量加权平均价格）策略，以在执行大额交易时降低市场冲击。">An execution engine implementing TWAP/VWAP strategies to minimize market impact.</div><div class="proj-tags"><span class="proj-tag" data-en="TWAP" data-zh="TWAP">TWAP</span><span class="proj-tag" data-en="VWAP" data-zh="VWAP">VWAP</span><span class="proj-tag" data-en="Execution" data-zh="执行">Execution</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/institutional-twap-vwap-execution-engine" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="fintech"><div class="proj-cat" data-en="Trading & Finance" data-zh="交易与金融">Trading & Finance</div><div class="proj-name" data-en="Institutional Crypto Research Operating System (ICOS)" data-zh="机构级加密货币研究操作系统（ICOS）">Institutional Crypto Research Operating System (ICOS)</div><div class="proj-desc" data-en="A research and analytics platform (ICOS) built to organize institutional-style cryptocurrency market research." data-zh="机构级加密货币研究操作系统（ICOS），用于组织与开展机构式的加密市场研究与分析工作。">A research and analytics platform for organizing institutional-style crypto research.</div><div class="proj-tags"><span class="proj-tag" data-en="Research" data-zh="研究">Research</span><span class="proj-tag" data-en="Analytics" data-zh="分析">Analytics</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/institutional-crypto-research-operating-" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="software"><div class="proj-cat" data-en="Software & Products" data-zh="软件与产品">Software & Products</div><div class="proj-name" data-en="Seishin Grove — Digital Product & AI Venture" data-zh="Seishin Grove — 数字产品与人工智能项目">Seishin Grove — Digital Product & AI Venture</div><div class="proj-desc" data-en="A digital product venture, Seishin Grove, combining AI capabilities with digital product offerings." data-zh="Seishin Grove 数字产品项目，将人工智能能力与数字产品相结合。">A digital product venture combining AI capabilities with digital product offerings.</div><div class="proj-tags"><span class="proj-tag" data-en="AI" data-zh="人工智能">AI</span><span class="proj-tag" data-en="Digital Products" data-zh="数字产品">Digital Products</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/seishin-grove-digital-product-and-ai-ven" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="software"><div class="proj-cat" data-en="Software & Products" data-zh="软件与产品">Software & Products</div><div class="proj-name" data-en="LoversGift — Romantic Digital Gift Marketplace" data-zh="LoversGift — 浪漫数字礼物交易平台">LoversGift — Romantic Digital Gift Marketplace</div><div class="proj-desc" data-en="LoversGift, a marketplace platform for romantic digital gifts, built with automated listing and fulfillment workflows." data-zh="LoversGift——浪漫数字礼物交易平台，具备自动化的商品上架与履约流程。">A marketplace for romantic digital gifts with automated listing and fulfillment.</div><div class="proj-tags"><span class="proj-tag" data-en="Marketplace" data-zh="交易平台">Marketplace</span><span class="proj-tag" data-en="Automation" data-zh="自动化">Automation</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/loversgift-romantic-digital-gift-marketp" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="software"><div class="proj-cat" data-en="Software & Products" data-zh="软件与产品">Software & Products</div><div class="proj-name" data-en="AR Floating Life Dashboard — PWA" data-zh="AR 悬浮生活仪表盘 — PWA 应用">AR Floating Life Dashboard — PWA</div><div class="proj-desc" data-en="A progressive web app (PWA) featuring an augmented-reality floating dashboard interface for everyday life data." data-zh="一款渐进式网络应用（PWA），提供增强现实（AR）悬浮仪表盘界面，用于展示日常生活数据。">A PWA featuring an augmented-reality floating dashboard for everyday life data.</div><div class="proj-tags"><span class="proj-tag" data-en="PWA" data-zh="PWA">PWA</span><span class="proj-tag" data-en="AR" data-zh="AR">AR</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/ar-floating-life-dashboard-pwa" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="software"><div class="proj-cat" data-en="Software & Products" data-zh="软件与产品">Software & Products</div><div class="proj-name" data-en="Chinese Ancient Wisdom Habit Tracker — Micro-SaaS" data-zh="中华古代智慧习惯追踪器 — 微型 SaaS">Chinese Ancient Wisdom Habit Tracker — Micro-SaaS</div><div class="proj-desc" data-en="A mobile micro-SaaS habit tracker inspired by Chinese ancient wisdom traditions, helping users build and monitor daily habits." data-zh="一款受中国古代智慧传统启发的移动端微型 SaaS 习惯追踪应用，帮助用户养成并监测日常习惯。">A mobile habit tracker inspired by Chinese ancient wisdom traditions.</div><div class="proj-tags"><span class="proj-tag" data-en="Micro-SaaS" data-zh="微型 SaaS">Micro-SaaS</span><span class="proj-tag" data-en="Mobile" data-zh="移动端">Mobile</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/chinese-ancient-wisdom-habit-tracker-mic" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="software"><div class="proj-cat" data-en="Software & Products" data-zh="软件与产品">Software & Products</div><div class="proj-name" data-en="Tao Te Ching Oracle — Micro-SaaS" data-zh="道德经神谕 — 微型 SaaS">Tao Te Ching Oracle — Micro-SaaS</div><div class="proj-desc" data-en="An AI-powered micro-SaaS app offering reflective guidance inspired by the Tao Te Ching." data-zh="一款 AI 驱动的微型 SaaS 应用，基于《道德经》提供反思性的人生指引。">An AI-powered app offering reflective guidance inspired by the Tao Te Ching.</div><div class="proj-tags"><span class="proj-tag" data-en="AI" data-zh="人工智能">AI</span><span class="proj-tag" data-en="Philosophy" data-zh="哲学">Philosophy</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/tao-te-ching-oracle-micro-saas" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="software"><div class="proj-cat" data-en="Software & Products" data-zh="软件与产品">Software & Products</div><div class="proj-name" data-en="PrintAI" data-zh="PrintAI">PrintAI</div><div class="proj-desc" data-en="PrintAI, an AI-driven automation tool for print-related design or production workflows." data-zh="PrintAI——面向印刷相关设计或生产流程的 AI 驱动自动化工具。">An AI-driven automation tool for print-related design or production workflows.</div><div class="proj-tags"><span class="proj-tag" data-en="AI" data-zh="人工智能">AI</span><span class="proj-tag" data-en="Automation" data-zh="自动化">Automation</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/printai" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="software"><div class="proj-cat" data-en="Software & Products" data-zh="软件与产品">Software & Products</div><div class="proj-name" data-en="Purrdle — Flutter Wordle-Style Game" data-zh="Purrdle — Flutter 版 Wordle 猜词游戏">Purrdle — Flutter Wordle-Style Game</div><div class="proj-desc" data-en="Purrdle, a Wordle-style word-guessing game built with Flutter for cross-platform mobile play." data-zh="Purrdle——使用 Flutter 开发的 Wordle 风格猜词游戏，支持跨平台移动端游玩。">A Wordle-style word-guessing game built with Flutter for cross-platform play.</div><div class="proj-tags"><span class="proj-tag" data-en="Flutter" data-zh="Flutter">Flutter</span><span class="proj-tag" data-en="Game Dev" data-zh="游戏开发">Game Dev</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/purrdle-flutter-wordle-style-game" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="software"><div class="proj-cat" data-en="Software & Products" data-zh="软件与产品">Software & Products</div><div class="proj-name" data-en="Sri Lankan Quest — Endless Runner Game" data-zh="斯里兰卡奇遇记 — 无尽奔跑游戏">Sri Lankan Quest — Endless Runner Game</div><div class="proj-desc" data-en="Sri Lankan Quest, a mobile endless-runner game themed around Sri Lankan settings and culture." data-zh="Sri Lankan Quest——以斯里兰卡场景与文化为主题的移动端无尽奔跑游戏。">A mobile endless-runner game themed around Sri Lankan settings and culture.</div><div class="proj-tags"><span class="proj-tag" data-en="Game Dev" data-zh="游戏开发">Game Dev</span><span class="proj-tag" data-en="Mobile" data-zh="移动端">Mobile</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/sri-lankan-quest-endless-runner-game" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="software"><div class="proj-cat" data-en="Software & Products" data-zh="软件与产品">Software & Products</div><div class="proj-name" data-en="Website-as-a-Service & Business Website Redesign" data-zh="网站即服务与企业官网重新设计">Website-as-a-Service & Business Website Redesign</div><div class="proj-desc" data-en="A Website-as-a-Service offering plus full-stack business website redesign work for clients." data-zh="网站即服务（WaaS）方案，并为客户提供全栈式企业官网重新设计服务。">A Website-as-a-Service offering plus full-stack business website redesigns for clients.</div><div class="proj-tags"><span class="proj-tag" data-en="WaaS" data-zh="WaaS">WaaS</span><span class="proj-tag" data-en="Full-Stack" data-zh="全栈">Full-Stack</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/website-as-a-service-and-business-websit" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+    <div class="proj-card" data-cat="software"><div class="proj-cat" data-en="Software & Products" data-zh="软件与产品">Software & Products</div><div class="proj-name" data-en="China–Sri Lanka Product Sourcing & E-Commerce Venture" data-zh="中国—斯里兰卡产品采购与跨境电商项目">China–Sri Lanka Product Sourcing & E-Commerce Venture</div><div class="proj-desc" data-en="A cross-border e-commerce venture sourcing products between China and Sri Lanka." data-zh="跨境电商项目，负责在中国与斯里兰卡之间进行产品采购与供应链对接。">A cross-border e-commerce venture sourcing products between China and Sri Lanka.</div><div class="proj-tags"><span class="proj-tag" data-en="E-Commerce" data-zh="电子商务">E-Commerce</span><span class="proj-tag" data-en="Cross-border" data-zh="跨境">Cross-border</span></div><a class="proj-explore" href="https://github.com/YOUR-USERNAME/china-sri-lanka-product-sourcing-and-e-c" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Audio Video Synchronizer" data-zh="音视频同步工具">Audio Video Synchronizer</div><div class="proj-desc" data-en="A Python tool for synchronizing audio tracks with video files." data-zh="用于同步音频轨道与视频文件的 Python 工具。" data-zh="用于同步音频轨道与视频文件的 Python 工具。">A Python tool for synchronizing audio tracks with video files.</div><div class="proj-tags"><span class="proj-tag" data-en="Python" data-zh="Python">Python</span><span class="proj-tag" data-en="Audio" data-zh="音频">Audio</span><span class="proj-tag" data-en="Video" data-zh="视频">Video</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Audio%20Video%20Synchronizer" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Auto Caption Video Subtitle Generator" data-zh="自动字幕视频生成器">Auto Caption Video Subtitle Generator</div><div class="proj-desc" data-en="An automated tool that generates subtitle captions for video files." data-zh="自动为视频文件生成字幕的工具。" data-zh="自动为视频文件生成字幕的工具。">An automated tool that generates subtitle captions for video files.</div><div class="proj-tags"><span class="proj-tag" data-en="Python" data-zh="Python">Python</span><span class="proj-tag" data-en="Subtitles" data-zh="字幕">Subtitles</span><span class="proj-tag" data-en="Automation" data-zh="自动化">Automation</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Auto%20Caption%20Video%20Subtitle%20Generator" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Automated Whisper Subtitles Generator &amp; FFmpeg Video Renderer" data-zh="自动化 Whisper 字幕生成与 FFmpeg 视频渲染器">Automated Whisper Subtitles Generator &amp; FFmpeg Video Renderer</div><div class="proj-desc" data-en="Combines OpenAI Whisper transcription with FFmpeg to generate and render subtitles onto video." data-zh="结合 OpenAI Whisper 转录与 FFmpeg，生成字幕并将其渲染到视频中。">Combines OpenAI Whisper transcription with FFmpeg to generate and render subtitles onto video.</div><div class="proj-tags"><span class="proj-tag" data-en="Whisper" data-zh="Whisper">Whisper</span><span class="proj-tag" data-en="FFmpeg" data-zh="FFmpeg">FFmpeg</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Automated%20Whisper%20Subtitles%20Generator%20&%20FFmpeg%20Video%20Renderer" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Binance All-Time-Low Crypto Scanner" data-zh="币安历史最低价加密货币扫描器">Binance All-Time-Low Crypto Scanner</div><div class="proj-desc" data-en="A scanner that tracks cryptocurrencies on Binance trading near their all-time-low prices." data-zh="追踪币安上接近历史最低价交易的加密货币扫描器。">A scanner that tracks cryptocurrencies on Binance trading near their all-time-low prices.</div><div class="proj-tags"><span class="proj-tag" data-en="Binance API">Binance API</span><span class="proj-tag" data-en="Crypto" data-zh="加密货币">Crypto</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Binance%20All-Time-Low%20Crypto%20Scanner" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Browser PDF Screenshot Capture" data-zh="浏览器 PDF 截图工具">Browser PDF Screenshot Capture</div><div class="proj-desc" data-en="A browser automation tool that captures screenshots and compiles them into a PDF." data-zh="通过浏览器自动化截取屏幕并将其合成为 PDF 的工具。">A browser automation tool that captures screenshots and compiles them into a PDF.</div><div class="proj-tags"><span class="proj-tag" data-en="Automation" data-zh="自动化">Automation</span><span class="proj-tag" data-en="PDF" data-zh="PDF">PDF</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Browser%20PDF%20Screenshot%20Capture" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Bulk Text and Filename Replacer" data-zh="批量文本与文件名替换工具">Bulk Text and Filename Replacer</div><div class="proj-desc" data-en="A batch utility for find-and-replace across text content and file names." data-zh="用于批量查找和替换文本内容及文件名的实用工具。">A batch utility for find-and-replace across text content and file names.</div><div class="proj-tags"><span class="proj-tag" data-en="Automation" data-zh="自动化">Automation</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Bulk%20Text%20and%20Filename%20Replacer" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Convert Text Files to mp3" data-zh="文本文件转 MP3 工具">Convert Text Files to mp3</div><div class="proj-desc" data-en="A text-to-speech tool that converts text files into mp3 audio." data-zh="将文本文件转换为 MP3 音频的文字转语音工具。">A text-to-speech tool that converts text files into mp3 audio.</div><div class="proj-tags"><span class="proj-tag" data-en="Text-to-Speech" data-zh="文字转语音">Text-to-Speech</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Convert%20Text%20Files%20to%20mp3" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Crypto ATL Scanner" data-zh="加密货币历史低点扫描器">Crypto ATL Scanner</div><div class="proj-desc" data-en="A scanner for identifying cryptocurrencies trading at or near their all-time low." data-zh="识别处于或接近历史最低价交易的加密货币扫描器。">A scanner for identifying cryptocurrencies trading at or near their all-time low.</div><div class="proj-tags"><span class="proj-tag" data-en="Crypto" data-zh="加密货币">Crypto</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Crypto%20ATL%20Scanner" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Generate Sql Workflow Flowchart" data-zh="SQL 工作流程图生成器">Generate Sql Workflow Flowchart</div><div class="proj-desc" data-en="A tool that generates a flowchart diagram from an SQL workflow." data-zh="根据 SQL 工作流程生成流程图的工具。">A tool that generates a flowchart diagram from an SQL workflow.</div><div class="proj-tags"><span class="proj-tag" data-en="SQL" data-zh="SQL">SQL</span><span class="proj-tag" data-en="Diagrams" data-zh="图表">Diagrams</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Generate%20Sql%20Workflow%20Flowchart" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Generate Star Topology Network Diagram" data-zh="星型拓扑网络图生成器">Generate Star Topology Network Diagram</div><div class="proj-desc" data-en="Generates a star-topology network diagram." data-zh="生成星型拓扑网络图。">Generates a star-topology network diagram.</div><div class="proj-tags"><span class="proj-tag" data-en="Networking" data-zh="网络">Networking</span><span class="proj-tag" data-en="Diagrams" data-zh="图表">Diagrams</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Generate%20Star%20Topology%20Network%20Diagram" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Interactive Particle Vortex" data-zh="交互式粒子漩涡">Interactive Particle Vortex</div><div class="proj-desc" data-en="An interactive particle-simulation visual effect." data-zh="交互式粒子模拟视觉效果。">An interactive particle-simulation visual effect.</div><div class="proj-tags"><span class="proj-tag" data-en="Simulation" data-zh="模拟">Simulation</span><span class="proj-tag" data-en="Visualization" data-zh="可视化">Visualization</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Interactive%20Particle%20Vortex" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Laptop Optimizer &amp; Resource Monitor" data-zh="笔记本电脑优化与资源监控工具">Laptop Optimizer &amp; Resource Monitor</div><div class="proj-desc" data-en="A utility for monitoring system resources and optimizing laptop performance." data-zh="用于监控系统资源并优化笔记本电脑性能的实用工具。">A utility for monitoring system resources and optimizing laptop performance.</div><div class="proj-tags"><span class="proj-tag" data-en="System Tools" data-zh="系统工具">System Tools</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Laptop%20Optimizer%20&%20Resource%20Monitor" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="List Text File Names" data-zh="文本文件名列表工具">List Text File Names</div><div class="proj-desc" data-en="A utility script that lists text file names in a directory." data-zh="列出目录中文本文件名的实用脚本。">A utility script that lists text file names in a directory.</div><div class="proj-tags"><span class="proj-tag" data-en="Automation" data-zh="自动化">Automation</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/List%20Text%20File%20Names" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Long-Video Auto Cropper &amp; 50s Segmenter for YouTube Shorts &amp; TikTok Videos" data-zh="长视频自动裁剪与 50 秒分段工具（YouTube Shorts 与 TikTok）">Long-Video Auto Cropper &amp; 50s Segmenter for YouTube Shorts &amp; TikTok Videos</div><div class="proj-desc" data-en="Automatically crops and segments long-form video into 50-second clips for YouTube Shorts and TikTok." data-zh="自动将长视频裁剪并分割为适用于 YouTube Shorts 和 TikTok 的 50 秒片段。">Automatically crops and segments long-form video into 50-second clips for YouTube Shorts and TikTok.</div><div class="proj-tags"><span class="proj-tag" data-en="FFmpeg" data-zh="FFmpeg">FFmpeg</span><span class="proj-tag" data-en="Video" data-zh="视频">Video</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Long-Video%20Auto%20Cropper%20&%2050s%20Segmenter%20for%20YouTube%20Shorts%20&%20TikTok%20Videos" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Move Text Files Matching wiith Audio Files" data-zh="匹配音频文件移动文本文件工具">Move Text Files Matching wiith Audio Files</div><div class="proj-desc" data-en="Organizes text files by matching and moving them alongside their corresponding audio files." data-zh="通过匹配对应的音频文件，将文本文件整理并移动到一起。">Organizes text files by matching and moving them alongside their corresponding audio files.</div><div class="proj-tags"><span class="proj-tag" data-en="Automation" data-zh="自动化">Automation</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Move%20Text%20Files%20Matching%20wiith%20Audio%20Files" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Network Topology Diagram Builder" data-zh="网络拓扑图构建器">Network Topology Diagram Builder</div><div class="proj-desc" data-en="A tool for building network topology diagrams." data-zh="用于构建网络拓扑图的工具。">A tool for building network topology diagrams.</div><div class="proj-tags"><span class="proj-tag" data-en="Networking" data-zh="网络">Networking</span><span class="proj-tag" data-en="Diagrams" data-zh="图表">Diagrams</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Network%20Topology%20Diagram%20Builder" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="PDF Image Compression &amp; Reconstruction Tool" data-zh="PDF 图像压缩与重建工具">PDF Image Compression &amp; Reconstruction Tool</div><div class="proj-desc" data-en="Compresses images within PDF files and reconstructs the document." data-zh="压缩 PDF 文件中的图像并重建文档。">Compresses images within PDF files and reconstructs the document.</div><div class="proj-tags"><span class="proj-tag" data-en="PDF" data-zh="PDF">PDF</span><span class="proj-tag" data-en="Compression">Compression</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/PDF%20Image%20Compression%20&%20Reconstruction%20Tool" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="PDF-to-image processor with cropping and decryption support" data-zh="支持裁剪与解密的 PDF 转图像处理器">PDF-to-image processor with cropping and decryption support</div><div class="proj-desc" data-en="Converts PDF pages to images, with support for cropping and decrypting protected files." data-zh="将 PDF 页面转换为图像，并支持裁剪和解密受保护的文件。">Converts PDF pages to images, with support for cropping and decrypting protected files.</div><div class="proj-tags"><span class="proj-tag" data-en="PDF" data-zh="PDF">PDF</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/PDF-to-image%20processor%20with%20cropping%20and%20decryption%20support" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Reddit Top Posts to Text Files Converter" data-zh="Reddit 热门帖子转文本文件工具">Reddit Top Posts to Text Files Converter</div><div class="proj-desc" data-en="Fetches top Reddit posts and converts them into text files." data-zh="获取 Reddit 热门帖子并将其转换为文本文件。">Fetches top Reddit posts and converts them into text files.</div><div class="proj-tags"><span class="proj-tag" data-en="Automation" data-zh="自动化">Automation</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Reddit%20Top%20Posts%20to%20Text%20Files%20Converter" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Simulate Campus Network" data-zh="校园网络模拟器">Simulate Campus Network</div><div class="proj-desc" data-en="A simulation of a campus computer network." data-zh="校园计算机网络模拟。">A simulation of a campus computer network.</div><div class="proj-tags"><span class="proj-tag" data-en="Networking" data-zh="网络">Networking</span><span class="proj-tag" data-en="Simulation" data-zh="模拟">Simulation</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Simulate%20Campus%20Network" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Smart Thumbnail Generator" data-zh="智能缩略图生成器">Smart Thumbnail Generator</div><div class="proj-desc" data-en="Automatically generates thumbnails for videos or images." data-zh="自动为视频或图像生成缩略图。">Automatically generates thumbnails for videos or images.</div><div class="proj-tags"><span class="proj-tag" data-en="Media" data-zh="媒体">Media</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Smart%20Thumbnail%20Generator" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Text Frame Generator" data-zh="文本框生成器">Text Frame Generator</div><div class="proj-desc" data-en="Generates styled text frames/graphics." data-zh="生成样式化文本框或图形。">Generates styled text frames/graphics.</div><div class="proj-tags"><span class="proj-tag" data-en="Media" data-zh="媒体">Media</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Text%20Frame%20Generator" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Text Title Duplicate Cleaner" data-zh="文本标题重复清理工具">Text Title Duplicate Cleaner</div><div class="proj-desc" data-en="Finds and removes duplicate text titles." data-zh="查找并删除重复的文本标题。">Finds and removes duplicate text titles.</div><div class="proj-tags"><span class="proj-tag" data-en="Automation" data-zh="自动化">Automation</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Text%20Title%20Duplicate%20Cleaner" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Thumbnail Generator with Text Overlay" data-zh="带文字叠加的缩略图生成器">Thumbnail Generator with Text Overlay</div><div class="proj-desc" data-en="Generates thumbnails with custom text overlays." data-zh="生成带有自定义文字叠加的缩略图。">Generates thumbnails with custom text overlays.</div><div class="proj-tags"><span class="proj-tag" data-en="Media" data-zh="媒体">Media</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Thumbnail%20Generator%20with%20Text%20Overlay" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Transport Ticket &amp; Routing Simulator (Stack + Queue + Sorting + Pathfinding)" data-zh="交通票务与路径规划模拟器（栈、队列、排序与寻路）">Transport Ticket &amp; Routing Simulator (Stack + Queue + Sorting + Pathfinding)</div><div class="proj-desc" data-en="A transport ticketing and routing simulator built around stack, queue, sorting, and pathfinding algorithms." data-zh="围绕栈、队列、排序和寻路算法构建的交通票务与路径规划模拟器。">A transport ticketing and routing simulator built around stack, queue, sorting, and pathfinding algorithms.</div><div class="proj-tags"><span class="proj-tag" data-en="Algorithms" data-zh="算法">Algorithms</span><span class="proj-tag" data-en="Simulation" data-zh="模拟">Simulation</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Transport%20Ticket%20&%20Routing%20Simulator%20(Stack%20+%20Queue%20+%20Sorting%20+%20Pathfinding)" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Video Compressor By Target Size" data-zh="按目标大小压缩视频工具">Video Compressor By Target Size</div><div class="proj-desc" data-en="Compresses video files down to a specified target file size." data-zh="将视频文件压缩到指定的目标文件大小。">Compresses video files down to a specified target file size.</div><div class="proj-tags"><span class="proj-tag" data-en="FFmpeg" data-zh="FFmpeg">FFmpeg</span><span class="proj-tag" data-en="Video" data-zh="视频">Video</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Video%20Compressor%20By%20Target%20Size" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Video Subtitle Auto-Generator &amp; Burner" data-zh="视频字幕自动生成与烧录工具">Video Subtitle Auto-Generator &amp; Burner</div><div class="proj-desc" data-en="Automatically generates and burns subtitles directly into video." data-zh="自动生成字幕并直接烧录到视频中。">Automatically generates and burns subtitles directly into video.</div><div class="proj-tags"><span class="proj-tag" data-en="Subtitles" data-zh="字幕">Subtitles</span><span class="proj-tag" data-en="FFmpeg" data-zh="FFmpeg">FFmpeg</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Video%20Subtitle%20Auto-Generator%20&%20Burner" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Video Subtitle Generator" data-zh="视频字幕生成器">Video Subtitle Generator</div><div class="proj-desc" data-en="Generates subtitles for video files." data-zh="为视频文件生成字幕。">Generates subtitles for video files.</div><div class="proj-tags"><span class="proj-tag" data-en="Subtitles" data-zh="字幕">Subtitles</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Video%20Subtitle%20Generator" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Video Subtitle Tool" data-zh="视频字幕工具">Video Subtitle Tool</div><div class="proj-desc" data-en="A tool for creating and editing video subtitles." data-zh="用于创建和编辑视频字幕的工具。">A tool for creating and editing video subtitles.</div><div class="proj-tags"><span class="proj-tag" data-en="Subtitles" data-zh="字幕">Subtitles</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Video%20Subtitle%20Tool" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="automation"><div class="proj-cat" data-en="Automation &amp; Media" data-zh="自动化与媒体">Automation &amp; Media</div><div class="proj-name" data-en="Video to Subtitles with Word Alignment and Burn In.py" data-zh="视频转字幕、逐词对齐与烧录工具.py">Video to Subtitles with Word Alignment and Burn In.py</div><div class="proj-desc" data-en="Converts video speech to subtitles with word-level alignment and burns them into the video." data-zh="将视频语音转换为字幕，进行逐词对齐并烧录到视频中。">Converts video speech to subtitles with word-level alignment and burns them into the video.</div><div class="proj-tags"><span class="proj-tag" data-en="Whisper" data-zh="Whisper">Whisper</span><span class="proj-tag" data-en="FFmpeg" data-zh="FFmpeg">FFmpeg</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Python-Projects/tree/main/Video%20to%20Subtitles%20with%20Word%20Alignment%20and%20Burn%20In.py" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="games"><div class="proj-cat" data-en="Games &amp; Robotics" data-zh="游戏与机器人">Games &amp; Robotics</div><div class="proj-name" data-en="Q Car" data-zh="Q Car 自动驾驶遥控车">Q Car</div><div class="proj-desc" data-en="An autonomous/self-driving RC car robotics project exploring vehicle perception and control." data-zh="探索车辆感知与控制的自主驾驶遥控车机器人项目。">An autonomous/self-driving RC car robotics project exploring vehicle perception and control.</div><div class="proj-tags"><span class="proj-tag" data-en="Robotics" data-zh="机器人技术">Robotics</span><span class="proj-tag" data-en="Autonomous Systems" data-zh="自主系统">Autonomous Systems</span><span class="proj-tag" data-en="Python" data-zh="Python">Python</span></div><a class="proj-explore" href="https://github.com/SandaruG/Projects/tree/main/Q%20Car" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div><div class="proj-card" data-cat="games"><div class="proj-cat" data-en="Games &amp; Robotics" data-zh="游戏与机器人">Games &amp; Robotics</div><div class="proj-name" data-en="Sri Lankan Quest — Endless Runner Game (Sri Lankan Version)" data-zh="斯里兰卡奇遇记——无尽奔跑游戏（斯里兰卡版）">Sri Lankan Quest — Endless Runner Game (Sri Lankan Version)</div><div class="proj-desc" data-en="An endless-runner game with a Sri Lankan theme and setting." data-zh="以斯里兰卡主题和场景为背景的无尽奔跑游戏。">An endless-runner game with a Sri Lankan theme and setting.</div><div class="proj-tags"><span class="proj-tag" data-en="Game Dev">Game Dev</span><span class="proj-tag" data-en="Endless Runner">Endless Runner</span></div><a class="proj-explore" href="https://github.com/SandaruG/Projects/tree/main/Sri%20Lankan%20Quest%20-%20Endless%20Runeer%20Game%20-%20Sri%20Lankan%20Version/Sri%20Lankan%20Quest" target="_blank" rel="noopener" data-en="Explore →" data-zh="查看详情 →">Explore →</a></div>
+  </div>
+
+  <div style="text-align:center;margin-top:2.5rem">
+    <a class="btn-secondary" href="https://github.com/SandaruG?tab=repositories" target="_blank" rel="noopener" data-en="View Full GitHub Profile ↗" data-zh="查看完整 GitHub 主页 ↗">View Full GitHub Profile ↗</a>
+  </div>
+
+</div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education" class="section panel" data-panel-index="5">
+<div class="panel-inner">
+  <div class="section-header section-reveal">
+    <div class="section-label"><span class="section-label-line"></span><span class="section-number">05</span><span data-en="Credentials" data-zh="资历证书">Credentials</span></div>
+    <div class="section-title" data-en-html='Academic <span>Background</span>' data-zh-html='学历<span>背景</span>'>Academic <span>Background</span></div>
+  </div>
+  <div class="edu-timeline">
+    <div class="edu-card section-reveal">
+      <div class="edu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div>
+        <div class="edu-degree" data-en="IELTS Academic — Overall Band 7.0" data-zh="雅思学术类 — 总分 7.0">IELTS Academic — Overall Band 7.0</div>
+        <div class="edu-institution" data-en="English Language Proficiency Test" data-zh="英语语言能力测试">English Language Proficiency Test</div>
+        <div class="edu-badge" data-en="Band 7.0" data-zh="7.0分">Band 7.0</div>
+        <div class="edu-doc-actions">
+          <button class="edu-doc-btn" onclick="openDocument('assets/certificates/ielts-certificate.pdf','IELTS Certificate','雅思成绩单')" data-en="View Certificate" data-zh="查看证书">View Certificate</button>
+        </div>
+      </div>
+      <div class="edu-period" data-en="2025/02/05" data-zh="2025/02/05">2025/02/05</div>
+    </div>
+    <div class="edu-card section-reveal">
+      <div class="edu-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+      <div>
+        <div class="edu-degree" data-en="BEng (Hons) Mechatronics and Autonomous Systems Engineering" data-zh="机电一体化与自主系统工程理学士（荣誉）学位">BEng (Hons) Mechatronics and Autonomous Systems Engineering</div>
+        <div class="edu-institution">Liverpool John Moores University · via ICBT Campus</div>
+        <div class="edu-badge" data-en="Honours Bachelor's Degree" data-zh="荣誉学士学位">Honours Bachelor's Degree</div>
+        <div class="edu-doc-actions">
+          <button class="edu-doc-btn" onclick="openDocument('assets/certificates/beng-certificate.pdf','BEng (Hons) Certificate','学士学位（荣誉）证书')" data-en="View Certificate" data-zh="查看证书">View Certificate</button>
+          <button class="edu-doc-btn" onclick="openDocument('assets/certificates/beng-transcript.pdf','BEng (Hons) Transcript','学士学位成绩单')" data-en="View Transcript" data-zh="查看成绩单">View Transcript</button>
+        </div>
+      </div>
+      <div class="edu-period" data-en="May 2022 – Jul 2023" data-zh="2022年5月至2023年7月">May 2022 – Jul 2023</div>
+    </div>
+    <div class="edu-card section-reveal">
+      <div class="edu-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+      <div>
+        <div class="edu-degree" data-en="Higher Diploma in Mechatronics Engineering" data-zh="机电一体化工程高级文凭">Higher Diploma in Mechatronics Engineering</div>
+        <div class="edu-institution">Liverpool John Moores University · via ICBT Campus</div>
+        <div class="edu-badge" data-en="Higher Diploma" data-zh="高级文凭">Higher Diploma</div>
+        <div class="edu-doc-actions">
+          <button class="edu-doc-btn" onclick="openDocument('assets/certificates/higher-diploma-certificate.pdf','Higher Diploma Certificate','高级文凭证书')" data-en="View Certificate" data-zh="查看证书">View Certificate</button>
+          <button class="edu-doc-btn" onclick="openDocument('assets/certificates/higher-diploma-transcript.pdf','Higher Diploma Transcript','高级文凭成绩单')" data-en="View Transcript" data-zh="查看成绩单">View Transcript</button>
+        </div>
+      </div>
+      <div class="edu-period" data-en="May 2020 – May 2022" data-zh="2020年5月至2022年5月">May 2020 – May 2022</div>
+    </div>
+    <div class="edu-card section-reveal">
+      <div class="edu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div>
+        <div class="edu-degree" data-en="Foundation for Engineers" data-zh="工程基础课程">Foundation for Engineers</div>
+        <div class="edu-institution">ICBT Campus</div>
+        <div class="edu-doc-actions">
+          <button class="edu-doc-btn" onclick="openDocument('assets/certificates/foundation-certificate.pdf','Foundation for Engineers Certificate','工程基础课程证书')" data-en="View Certificate" data-zh="查看证书">View Certificate</button>
+          <button class="edu-doc-btn" onclick="openDocument('assets/certificates/foundation-transcript.pdf','Foundation for Engineers Transcript','工程基础课程成绩单')" data-en="View Transcript" data-zh="查看成绩单">View Transcript</button>
+        </div>
+      </div>
+      <div class="edu-period" data-en="May 2019 – May 2020" data-zh="2019年5月至2020年5月">May 2019 – May 2020</div>
+    </div>
+    <div class="edu-card section-reveal">
+      <div class="edu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div>
+        <div class="edu-degree" data-en="Diploma in Information Technology · Diploma in English" data-zh="信息技术文凭 · 英语文凭">Diploma in Information Technology · Diploma in English</div>
+        <div class="edu-institution">Esoft Metro Campus</div>
+      </div>
+      <div class="edu-period" data-en="Jan – Apr 2019" data-zh="2019年1月至4月">Jan – Apr 2019</div>
+    </div>
+    <div class="edu-card section-reveal">
+      <div class="edu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div>
+        <div class="edu-degree" data-en="GCE Ordinary Level" data-zh="GCE 普通水准（O-Level）">GCE Ordinary Level</div>
+        <div class="edu-institution">Central College Piliyandala</div>
+        <div class="edu-doc-actions">
+          <button class="edu-doc-btn" onclick="openDocument('assets/certificates/ol-certificate.pdf','GCE O-Level Certificate','GCE 普通水准证书')" data-en="View Certificate" data-zh="查看证书">View Certificate</button>
+        </div>
+      </div>
+      <div class="edu-period" data-en="Dec 2018" data-zh="2018年12月">Dec 2018</div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="panel" data-panel-index="6">
+<div class="panel-inner">
+  <div class="section-label" style="justify-content:center;margin-bottom:.75rem"><span class="section-label-line"></span><span class="section-number">06</span><span data-en="Contact" data-zh="联系方式">Contact</span></div>
+  <div class="contact-title" data-en-html="Let's Build <span>Together</span>" data-zh-html="让我们<span>携手共建</span>">Let's Build <span>Together</span></div>
+  <p class="contact-sub" data-en="Available for drone, eVTOL, and autonomous systems engineering roles in China. Open to relocation and immediate engagement." data-zh="可胜任中国境内的无人机、eVTOL 与自主系统工程岗位，愿意搬迁并可立即到岗。">Available for drone, eVTOL, and autonomous systems engineering roles in China. Open to relocation and immediate engagement.</p>
+  <div class="contact-grid">
+    <div class="contact-item">
+      <div class="contact-item-label" data-en="Full Name" data-zh="全名">Full Name</div>
+      <div class="contact-item-val">Hetti Arachchige Sandaru Gaurange Alwis</div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-item-label" data-en="Email" data-zh="电子邮箱">Email</div>
+      <div class="contact-item-val"><a href="mailto:sandaru28gaurange@gmail.com">sandaru28gaurange@gmail.com</a></div>
+      <button class="copy-btn" onclick="cp('sandaru28gaurange@gmail.com',this)" data-en="Copy address" data-zh="复制邮箱">Copy address</button>
+    </div>
+    <div class="contact-item">
+      <div class="contact-item-label" data-en="WeChat — main contact method" data-zh="微信 — 首选联系方式">WeChat — main contact method</div>
+      <div class="contact-item-val">wxid_tbmxcdudhbx412</div>
+      <button class="copy-btn" onclick="cp('wxid_tbmxcdudhbx412',this)" data-en="Copy WeChat ID" data-zh="复制微信号">Copy WeChat ID</button>
+    </div>
+    <div class="contact-item">
+      <div class="contact-item-label" data-en="Phone" data-zh="电话">Phone</div>
+      <div class="contact-item-val">+86 199 4958 5139</div>
+      <button class="copy-btn" onclick="cp('+94703955139',this)" data-en="Copy number" data-zh="复制号码">Copy number</button>
+    </div>
+    <div class="contact-item">
+      <div class="contact-item-label">LinkedIn</div>
+      <div class="contact-item-val"><a href="https://lk.linkedin.com/in/sandaru-gaurange-ros2" target="_blank" rel="noopener">Linkedin</a></div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-item-label" data-en="Nationality" data-zh="国籍">Nationality</div>
+      <div class="contact-item-val" data-en="Sri Lankan" data-zh="斯里兰卡籍">Sri Lankan</div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-item-label" data-en="Religion" data-zh="宗教信仰">Religion</div>
+      <div class="contact-item-val" data-en="Buddhism" data-zh="佛教">Buddhism</div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-item-label" data-en="Location" data-zh="现居地">Location</div>
+      <div class="contact-item-val" data-en="Mianyang, China" data-zh="中国绵阳">Mianyang, China</div>
+    </div>
+  </div>
+  <div class="ref-section">
+    <div class="ref-title"><span data-en="References" data-zh="推荐人">References</span></div>
+    <div class="ref-grid">
+      <div class="ref-card">
+        <div class="ref-name">Prof. Chaminda Karunasena</div>
+        <div class="ref-role" data-en="Professor — Faculty of Engineering, University of Ruhuna" data-zh="教授 — 鲁哈纳大学工程学院">Professor — Faculty of Engineering, University of Ruhuna</div>
+        <div class="ref-contact">
+          <a href="tel:+94718481683">+94 71 848 1683</a>
+          <a href="mailto:hcpkarunasena@yahoo.com">hcpkarunasena@yahoo.com</a>
+        </div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-name">Mrs. Chethana Alwis</div>
+        <div class="ref-role" data-en="Senior Project Manager R&D — OREL Corporation" data-zh="研发高级项目经理 — OREL 公司">Senior Project Manager R&D — OREL Corporation</div>
+        <div class="ref-contact">
+          <a href="tel:+94713749507">+94 71 374 9507</a>
+          <a href="mailto:chethana@orelcorp.com">chethana@orelcorp.com</a>
+        </div>
+      </div>
+    </div>
+  </div>
+<footer>
+  <span class="footer-brand">Sandaru Gaurange Alwis</span>
+  <span data-en="Mechatronics & Autonomous Systems Engineer" data-zh="机电一体化与自主系统工程师">Mechatronics & Autonomous Systems Engineer</span>
+  <div class="footer-right">
+    <a href="mailto:sandaru28gaurange@gmail.com" data-en="Email" data-zh="邮箱">Email</a>
+    <a href="https://lk.linkedin.com/in/sandaru-gaurange-ros2" target="_blank" rel="noopener" data-en="LinkedIn" data-zh="领英">LinkedIn</a>
+  </div>
+</footer>
+</div>
+</section>
+</div>
+<!-- /panel-track -->
+
+
+
+<div id="toast"></div>
+
+<div id="lightbox" onclick="if(event.target===this)closeLightbox()">
+  <button id="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
+  <img id="lightbox-img" src="" alt="">
+  <div id="lightbox-caption"></div>
+</div>
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<script>
+/* ---- GLOBAL STATE ---- */
+const isMobile = window.innerWidth < 768;
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const hasGSAP = typeof window.gsap !== 'undefined';
+
+/* ---- LANGUAGE (EN / 中文) ----
+   Every translatable element carries data-en/data-zh (plain text) or
+   data-en-html/data-zh-html (for the few elements with nested markup,
+   e.g. a <span> highlight inside a heading). setLanguage() swaps them
+   all in one pass, with a short GSAP fade+slide if GSAP is available,
+   and remembers the choice in localStorage. */
+let currentLang = 'en';
+try{
+  currentLang = localStorage.getItem('site-lang') ||
+    ((navigator.language||'').toLowerCase().startsWith('zh') ? 'zh' : 'en');
+}catch(e){ /* localStorage unavailable (e.g. private mode) — default to en */ }
+
+function applyTextNode(el, lang){
+  if(el.dataset.enHtml !== undefined || el.dataset.zhHtml !== undefined){
+    el.innerHTML = lang==='zh' ? (el.dataset.zhHtml || el.innerHTML) : (el.dataset.enHtml || el.innerHTML);
+  } else {
+    el.textContent = lang==='zh' ? (el.dataset.zh || el.textContent) : (el.dataset.en || el.textContent);
+  }
+}
+
+function setLanguage(lang, animate){
+  if(animate===undefined) animate = true;
+  const nodes = Array.prototype.slice.call(document.querySelectorAll('[data-en],[data-en-html]'));
+  const finish = ()=>{
+    nodes.forEach(el=>applyTextNode(el, lang));
+    document.documentElement.lang = lang==='zh' ? 'zh-CN' : 'en';
+    document.title = lang==='zh'
+      ? 'Sandaru · Gaurange — 机电一体化与自主系统工程师'
+      : 'Sandaru Gaurange — Mechatronics & Autonomous Systems Engineer';
+    const enBtn=document.getElementById('lang-en'), zhBtn=document.getElementById('lang-zh');
+    if(enBtn) enBtn.classList.toggle('active', lang==='en');
+    if(zhBtn) zhBtn.classList.toggle('active', lang==='zh');
+    // Re-capture each copy button's "resting" label in the new language.
+    document.querySelectorAll('.copy-btn').forEach(b=>{ if(!b.classList.contains('done')) b.dataset.label=b.textContent; });
+    // Panel-dot tooltips: update the data-label attribute the CSS reads,
+    // never the dot's own text content (it must stay visually empty).
+    document.querySelectorAll('[data-tip-en]').forEach(el=>{
+      el.setAttribute('data-label', lang==='zh' ? (el.dataset.tipZh||'') : (el.dataset.tipEn||''));
+    });
+    currentLang = lang;
+    try{ localStorage.setItem('site-lang', lang); }catch(e){}
+  };
+  if(animate && !prefersReducedMotion && typeof window.gsap !== 'undefined' && nodes.length){
+    gsap.to(nodes,{opacity:0,y:-5,duration:.16,ease:'power2.in',stagger:{amount:.12},onComplete:()=>{
+      finish();
+      gsap.fromTo(nodes,{opacity:0,y:5},{opacity:1,y:0,duration:.26,ease:'power2.out',stagger:{amount:.14}});
+    }});
+  } else {
+    finish();
+  }
+}
+setLanguage(currentLang, false); // apply saved/detected language immediately, no animation on first paint
+
+/* ---- CURSOR ---- */
+if(!prefersReducedMotion && !isMobile){
+  const cur = document.getElementById('cursor');
+  const ring = cur.querySelector('.cur-ring');
+  let cx=0,cy=0,tx=0,ty=0;
+  document.addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY});
+  document.querySelectorAll('a,button,.aerial-card,.proj-card,.stat-card,.img-frame,.gh-card').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cur.classList.add('hovered'));
+    el.addEventListener('mouseleave',()=>cur.classList.remove('hovered'));
+  });
+  (function animCursor(){
+    cx+=(tx-cx)*.42; cy+=(ty-cy)*.42;
+    cur.style.transform=`translate(${cx}px,${cy}px)`;
+    requestAnimationFrame(animCursor);
+  })();
+}
+
+/* ---- TOAST / COPY ---- */
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function cp(val,btn){
+  navigator.clipboard.writeText(val).then(()=>{
+    btn.textContent = currentLang==='zh' ? '已复制 ✓' : 'Copied ✓';
+    btn.classList.add('done');
+    toast((currentLang==='zh' ? '已复制：' : 'Copied: ')+val);
+    setTimeout(()=>{btn.textContent=btn.dataset.label||'Copy';btn.classList.remove('done')},2000);
+  });
+}
+document.querySelectorAll('.copy-btn').forEach(b=>b.dataset.label=b.textContent);
+
+
+/* ---- LOADER ---- */
+(function(){
+  const loaderEl=document.getElementById('loader');
+  // Hard safety net: whatever happens with the CDN scripts, never let the
+  // loader block the page for more than ~4s. This matters a lot on
+  // networks where a script host (e.g. cdnjs) is slow or unreachable.
+  const safety=setTimeout(()=>{
+    if(loaderEl)loaderEl.style.display='none';
+    startHeroAnimations();
+  },4000);
+
+  if(prefersReducedMotion || !hasGSAP){
+    clearTimeout(safety);
+    if(loaderEl)loaderEl.style.display='none';
+    startHeroAnimations();
+    return;
+  }
+  const bar=document.getElementById('loader-bar');
+  const pct=document.getElementById('loader-pct');
+  const name=document.getElementById('loader-name');
+  let p=0;
+  gsap.to(name,{opacity:1,y:0,duration:.6,delay:.2});
+  const iv=setInterval(()=>{
+    p+=Math.random()*12+3;
+    if(p>100)p=100;
+    bar.style.width=p+'%';
+    pct.textContent=Math.floor(p)+'%';
+    if(p>=100){
+      clearInterval(iv);
+      setTimeout(()=>{
+        clearTimeout(safety);
+        gsap.to('#loader',{opacity:0,duration:.6,ease:'power2.in',onComplete:()=>{
+          loaderEl.style.display='none';
+          startHeroAnimations();
+        }});
+      },400);
+    }
+  },80);
+})();
+
+/* ---- HERO 2D DRONE PARALLAX ----
+   Replaces the old Three.js hero scene. A lightweight, rAF-driven
+   mousemove handler tilts the drone SVG and updates the telemetry
+   readout — no WebGL, no render loop, just a CSS-eased transform. */
+(function(){
+  const tilt = document.getElementById('hero-drone-tilt');
+  if(!tilt || isMobile || prefersReducedMotion) return;
+  const tPitch = document.getElementById('t-pitch');
+  const tRoll = document.getElementById('t-roll');
+  const tYaw = document.getElementById('t-yaw');
+  let mx=0, my=0, raf=null;
+  function update(){
+    tilt.style.transform = `translate(${(mx*58).toFixed(1)}px, ${(my*40).toFixed(1)}px) rotate(${(mx*13).toFixed(2)}deg) skewX(${(-my*5).toFixed(2)}deg)`;
+    if(tPitch) tPitch.textContent=(my*22).toFixed(2)+'°';
+    if(tRoll) tRoll.textContent=(mx*18).toFixed(2)+'°';
+    if(tYaw) tYaw.textContent=(mx*12).toFixed(2)+'°';
+    raf=null;
+  }
+  window.addEventListener('mousemove', e=>{
+    mx=(e.clientX/window.innerWidth-.5)*2;
+    my=(e.clientY/window.innerHeight-.5)*2;
+    if(!raf) raf=requestAnimationFrame(update);
+  });
+})();
+
+/* ---- HERO ANIMATIONS (post-loader) ---- */
+function startHeroAnimations(){
+  if(prefersReducedMotion || !hasGSAP){
+    ['hero-eyebrow','hero-h1','hero-subtitle','hero-tags','hero-actions','hero-telemetry','hero-scroll-hint']
+      .forEach(id=>{const el=document.getElementById(id);if(el){el.style.opacity='1';el.style.transform='none'}});
+    return;
+  }
+  const tl=gsap.timeline();
+  tl.to('#hero-eyebrow',{opacity:1,y:0,duration:.6,ease:'power3.out'})
+    .to('#hero-h1',{opacity:1,y:0,duration:.7,ease:'power3.out'},'-=.3')
+    .to('#hero-subtitle',{opacity:1,y:0,duration:.6,ease:'power3.out'},'-=.4')
+    .to('#hero-tags',{opacity:1,y:0,duration:.5,ease:'power3.out'},'-=.3')
+    .to('#hero-actions',{opacity:1,y:0,duration:.5,ease:'power3.out'},'-=.2')
+    .to('#hero-telemetry',{opacity:.9,duration:.8},'-=.3')
+    .to('#hero-scroll-hint',{opacity:.7,duration:.6},'-=.4');
+}
+
+/* ---- PANEL-BASED REVEAL ----
+   The page no longer document-scrolls (see panel navigation engine
+   below), so ScrollTrigger's viewport-position model no longer applies.
+   Each panel's .section-reveal / .skill-item / .proj-card / .gh-card /
+   .img-frame elements instead animate in once, the first time that
+   panel becomes the active one — using gsap.from() so that if GSAP is
+   unavailable, elements simply stay at their natural (visible) CSS
+   state, exactly as the old scroll-triggered version did. */
+const revealedPanels = new Set();
+/* Reveal uses a plain CSS keyframe animation (see @keyframes panelReveal)
+   rather than gsap.from(). The cards (.edu-card, .aerial-card, .gh-card)
+   all carry `transition: all`, and GSAP rewriting opacity/transform every
+   frame made each write start its own CSS transition — so the cards lagged
+   behind the tween and looked dimmed/"behind a layer". A CSS animation
+   doesn't trigger transitions and hands back to the natural styles when it
+   finishes, so a card can never get stuck half-faded. Works without GSAP. */
+function revealEls(els, opts){
+  const o = Object.assign({dx:'0px',dy:'24px',scale:1,stagger:70,delay:0,dur:650}, opts||{});
+  Array.prototype.forEach.call(els,(el,i)=>{
+    el.style.setProperty('--rx',o.dx);
+    el.style.setProperty('--ry',o.dy);
+    el.style.setProperty('--rs',o.scale);
+    el.style.animation = 'panelReveal '+o.dur+'ms cubic-bezier(.16,1,.3,1) '+(o.delay+Math.min(i,12)*o.stagger)+'ms backwards';
+    el.addEventListener('animationend',function done(e){
+      if(e.target!==el)return;
+      el.style.animation='';
+      el.removeEventListener('animationend',done);
+    });
+  });
+}
+function revealPanel(index){
+  if(revealedPanels.has(index))return;
+  revealedPanels.add(index);
+  if(prefersReducedMotion)return;
+  const panel = panels[index];
+  if(!panel)return;
+  revealEls(panel.querySelectorAll('.section-reveal'),{dy:'30px',stagger:80,dur:700});
+  revealEls(panel.querySelectorAll('.skill-item'),{dx:'-12px',dy:'0px',stagger:50,delay:150,dur:450});
+  revealEls(panel.querySelectorAll('.proj-card:not(.hidden)'),{dy:'16px',stagger:30,delay:150,dur:450});
+  revealEls(panel.querySelectorAll('.gh-card'),{dy:'16px',stagger:60,delay:150,dur:450});
+  revealEls(panel.querySelectorAll('.img-frame'),{dy:'0px',scale:.94,stagger:80,delay:200,dur:600});
+}
+
+/* ---- HORIZONTAL PANEL NAVIGATION ----
+   The entire site is one row of full-viewport panels. html/body never
+   scroll (see CSS); this engine moves #panel-track with a GSAP-tweened
+   translateX in response to wheel, touch-swipe, arrow keys, or the side
+   dots. A panel's own .panel-inner still scrolls vertically in the
+   ordinary way when its content is taller than the viewport — the wheel
+   and touch handlers below check for that and let it happen natively,
+   only converting the gesture into a panel change once that inner
+   content has reached its scroll boundary (or the gesture is clearly
+   horizontal, e.g. a trackpad swipe). */
+const PANEL_IDS = ['hero','about','experience','projects-aerial','projects-other','education','contact'];
+const panelTrack = document.getElementById('panel-track');
+const panels = [];
+document.querySelectorAll('.panel').forEach(el=>{ panels[parseInt(el.dataset.panelIndex,10)] = el; });
+const PANEL_COUNT = panels.length;
+let currentPanel = 0;
+let isTransitioning = false;
+let swipeHintDismissed = false;
+
+function dismissSwipeHint(){
+  if(swipeHintDismissed)return;
+  swipeHintDismissed = true;
+  const hint = document.getElementById('panel-swipe-hint');
+  if(!hint)return;
+  if(hasGSAP && !prefersReducedMotion) gsap.to(hint,{opacity:0,duration:.4,onComplete:()=>hint.style.display='none'});
+  else hint.style.display='none';
+}
+
+/* setTrackX now flies between panels instead of flat-sliding: a quick
+   dip (scale + blur), a banked translateX with a slight roll in the
+   direction of travel, then a level-out — plus a burst of speed-streaks
+   (#flight-fx) so a panel change reads as flying forward, not scrolling. */
+function setTrackX(x, animate, onDone, direction){
+  const finish = ()=>{ panelTrack.classList.remove('flying'); if(onDone)onDone(); };
+  if(hasGSAP && !prefersReducedMotion){
+    if(animate){
+      const bank = (direction||1) > 0 ? -2.4 : 2.4;
+      panelTrack.classList.add('flying'); // CSS-driven blur dip — independent of the GSAP timeline below
+      try{
+        gsap.timeline({onComplete:finish})
+          .to(panelTrack,{scale:.965,duration:.26,ease:'power2.in'})
+          .to(panelTrack,{x:x,rotation:bank,transformOrigin:'50% 160%',duration:.52,ease:'power3.inOut'},'-=.08')
+          .to(panelTrack,{scale:1,rotation:0,duration:.34,ease:'power2.out'},'-=.14');
+      }catch(err){
+        // If anything about the flight timeline ever throws, fall back to an
+        // instant move rather than leaving isTransitioning stuck true.
+        console.warn('flight transition failed, jumping instantly:', err);
+        gsap.set(panelTrack,{x:x,scale:1,rotation:0});
+        finish();
+      }
+    } else {
+      gsap.set(panelTrack,{x:x}); if(onDone)onDone();
+    }
+  } else {
+    panelTrack.style.transform = `translateX(${x}px)`;
+    if(onDone)onDone();
+  }
+}
+
+function updateDotsAndNav(index){
+  const id = PANEL_IDS[index];
+  document.querySelectorAll('.panel-dot').forEach(d=>d.classList.toggle('active', parseInt(d.dataset.index,10)===index));
+  document.querySelectorAll('#nav-links a').forEach(a=>a.classList.toggle('active', a.dataset.section===id));
+}
+
+/* Each panel has its own point in the "flight" — the sky crossfades
+   through a different time-of-day theme as you move between sections. */
+const PANEL_SKY = ['dawn','day','golden','sunset','dusk','aurora','night'];
+const NIGHT_THEMES = ['twilight','aurora','night'];
+function updateSkyTheme(index){
+  const theme = PANEL_SKY[index] || 'day';
+  document.body.setAttribute('data-sky', theme);
+  document.querySelectorAll('.sky-theme').forEach(el=>el.classList.toggle('active', el.dataset.theme===theme));
+  const stars = document.getElementById('stars-layer');
+  if(stars) stars.classList.toggle('active', NIGHT_THEMES.indexOf(theme)!==-1);
+}
+
+let flightFXTimeout;
+function triggerFlightFX(){
+  const fx = document.getElementById('flight-fx');
+  if(!fx || prefersReducedMotion) return;
+  fx.classList.remove('active');
+  void fx.offsetWidth; // restart the CSS animation
+  fx.classList.add('active');
+  clearTimeout(flightFXTimeout);
+  flightFXTimeout = setTimeout(()=>fx.classList.remove('active'),650);
+}
+
+function goToPanel(index){
+  index = Math.max(0, Math.min(PANEL_COUNT-1, index));
+  if(isTransitioning || index===currentPanel)return;
+  dismissSwipeHint();
+  const prevIndex = currentPanel;
+  const direction = index > prevIndex ? 1 : -1;
+  currentPanel = index;
+  isTransitioning = true;
+
+  triggerFlightFX();
+  updateSkyTheme(index);
+  updateDotsAndNav(index);
+  // Reveal the panel's content right away rather than gating it on the
+  // flight animation finishing — content should be there the instant you
+  // arrive, not fade in after an extra delay (and this keeps a stalled
+  // or errored transition from ever leaving a panel permanently blank).
+  revealPanel(index);
+  setTrackX(-index*window.innerWidth, true, ()=>{ isTransitioning=false; }, direction);
+}
+window.goToPanel = goToPanel;
+
+window.addEventListener('resize', ()=>{
+  setTrackX(-currentPanel*window.innerWidth, false);
+});
+
+/* Wheel → panel change (with inner-scroll passthrough).
+   A fast trackpad/mouse-wheel fling keeps sending events for a little
+   while after the hand stops moving. Without a guard, the tail end of
+   that momentum — arriving right as inner content hits its scroll
+   boundary — reads as "one more push" and flips to the next panel
+   before the person has actually seen the bottom. BOUNDARY_ARM_MS
+   requires the push to keep going for a beat after hitting the edge
+   before it's treated as an intentional "next page" gesture. */
+let wheelLock=false;
+let boundaryDir=0, boundaryStart=0;
+const BOUNDARY_ARM_MS = 260;
+window.addEventListener('wheel', e=>{
+  const inner = e.target.closest ? e.target.closest('.panel-inner') : null;
+  const horizontalIntent = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+  if(inner && !horizontalIntent){
+    const atTop = inner.scrollTop <= 0;
+    const atBottom = inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 1;
+    const pushingPastTop = e.deltaY < 0 && atTop;
+    const pushingPastBottom = e.deltaY > 0 && atBottom;
+    if(!pushingPastTop && !pushingPastBottom){
+      boundaryDir = 0; // still real content to scroll — reset the arm timer
+      return; // let native inner scroll happen
+    }
+    const dir = e.deltaY > 0 ? 1 : -1;
+    const now = performance.now();
+    if(boundaryDir !== dir){ boundaryDir = dir; boundaryStart = now; e.preventDefault(); return; }
+    if(now - boundaryStart < BOUNDARY_ARM_MS){ e.preventDefault(); return; }
+  }
+  e.preventDefault();
+  if(wheelLock || isTransitioning)return;
+  const delta = horizontalIntent ? e.deltaX : e.deltaY;
+  if(Math.abs(delta) < 8)return;
+  wheelLock = true;
+  boundaryDir = 0;
+  setTimeout(()=>{wheelLock=false;},850);
+  goToPanel(currentPanel + (delta>0 ? 1 : -1));
+},{passive:false});
+
+/* Touch swipe → panel change (with inner-scroll passthrough) */
+let touchStartX=0, touchStartY=0, touchInner=null, touchAxis=null, touchBoundaryY=null;
+window.addEventListener('touchstart', e=>{
+  const t=e.touches[0];
+  touchStartX=t.clientX; touchStartY=t.clientY; touchAxis=null; touchBoundaryY=null;
+  touchInner = e.target.closest ? e.target.closest('.panel-inner') : null;
+},{passive:true});
+window.addEventListener('touchmove', e=>{
+  const t=e.touches[0];
+  const dx=t.clientX-touchStartX, dy=t.clientY-touchStartY;
+  if(touchAxis===null && (Math.abs(dx)>10 || Math.abs(dy)>10)){
+    touchAxis = Math.abs(dx)>Math.abs(dy) ? 'x' : 'y';
+  }
+  if(touchAxis==='y' && touchInner){
+    const atTop = touchInner.scrollTop <= 0;
+    const atBottom = touchInner.scrollTop + touchInner.clientHeight >= touchInner.scrollHeight - 1;
+    if((dy>0 && atTop) || (dy<0 && atBottom)){
+      if(touchBoundaryY===null) touchBoundaryY = t.clientY; // mark where the edge was first hit
+      e.preventDefault(); // at the boundary — don't rubber-band, building panel-swipe intent
+    } else {
+      touchBoundaryY = null; // back on real content — this isn't an edge push anymore
+    }
+    return;
+  }
+  if(touchAxis==='x') e.preventDefault();
+},{passive:false});
+window.addEventListener('touchend', e=>{
+  const t=e.changedTouches[0];
+  const dx=t.clientX-touchStartX, dy=t.clientY-touchStartY;
+  if(touchAxis==='x' && Math.abs(dx) > 60){
+    goToPanel(currentPanel + (dx<0 ? 1 : -1));
+  } else if(touchAxis==='y' && touchInner && touchBoundaryY!==null && Math.abs(t.clientY-touchBoundaryY) > 45){
+    const atTop = touchInner.scrollTop <= 0;
+    const atBottom = touchInner.scrollTop + touchInner.clientHeight >= touchInner.scrollHeight - 1;
+    if(dy<0 && atBottom) goToPanel(currentPanel+1);
+    else if(dy>0 && atTop) goToPanel(currentPanel-1);
+  }
+},{passive:true});
+
+/* Keyboard arrows → panel change */
+window.addEventListener('keydown', e=>{
+  if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); goToPanel(currentPanel+1); }
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); goToPanel(currentPanel-1); }
+});
+
+/* ---- PROJECT FILTER ---- */
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    const cat=this.dataset.cat;
+    const cards=[...document.querySelectorAll('.proj-card')];
+    let visible=[];
+    cards.forEach(c=>{
+      const show=cat==='all'||c.dataset.cat===cat;
+      c.classList.toggle('hidden',!show);
+      if(show)visible.push(c);
+    });
+    if(hasGSAP)gsap.from(visible,{opacity:0,y:12,duration:.3,stagger:.04,ease:'power2.out'});
+  });
+});
+
+/* ---- NAV LINK / CTA CLICKS → PANEL NAVIGATION ---- */
+const ID_TO_INDEX = {};
+PANEL_IDS.forEach((id,i)=>{ ID_TO_INDEX[id]=i; });
+document.querySelectorAll('#nav-links a, .btn-primary, .btn-secondary').forEach(a=>{
+  const href=a.getAttribute('href');
+  if(href && href.startsWith('#')){
+    const id = href.slice(1);
+    a.addEventListener('click', e=>{
+      e.preventDefault();
+      if(id in ID_TO_INDEX) goToPanel(ID_TO_INDEX[id]);
+    });
+  }
+});
+
+/* ---- LIGHTBOX (certificate / transcript viewer) ---- */
+function openDocument(path, titleEn, titleZh){
+  if(/\.pdf($|\?)/i.test(path)){ window.open(path,'_blank','noopener'); return; }
+  const lb=document.getElementById('lightbox');
+  const img=document.getElementById('lightbox-img');
+  const cap=document.getElementById('lightbox-caption');
+  const label=currentLang==='zh' ? (titleZh||titleEn||'') : (titleEn||titleZh||'');
+  img.src=path; img.alt=label; cap.textContent=label;
+  lb.classList.add('open');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLightbox(); });
+
+/* ---- BOOT SEQUENCE ---- */
+window.addEventListener('load',()=>{
+  // Note: startHeroAnimations() is already invoked by the loader IIFE
+  // above in every case (normal, reduced-motion, and CDN-failure fallback).
+  updateSkyTheme(0);
+  updateDotsAndNav(0);
+  revealPanel(0);
+});
+</script>
+</body>
+</html>
